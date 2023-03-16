@@ -1,7 +1,23 @@
+using Microsoft.EntityFrameworkCore;
+
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+builder
+    .Services
+    .AddDbContext<TheProjector.Data.Persistence.TheProjectorDbContext>(
+        options => options
+            .UseSqlServer(
+                builder
+                .Configuration
+                .GetConnectionString("TheProjectorSqlServer")
+            )
+    );
+
+builder.Services.AddScoped<TheProjector.Services.ProjectService>();
 
 var app = builder.Build();
 
