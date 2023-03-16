@@ -1,10 +1,19 @@
 using Microsoft.AspNetCore.Mvc;
 using TheProjector.Data.DTO.Form;
+using TheProjector.Data.DTO;
+using TheProjector.Services;
 
 namespace TheProjector.Controllers;
 
 public class ProjectsController : Controller
 {
+
+    private ProjectService _service;
+
+    public ProjectsController(ProjectService projectService)
+    {
+        _service = projectService;
+    }
 
     public IActionResult Index()
     {
@@ -18,13 +27,17 @@ public class ProjectsController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult Create(ProjectForm createForm)
+    public async Task<IActionResult> Create(ProjectForm createForm)
     {
         if (!ModelState.IsValid)
         {
             return View(createForm);
         }
-        // WIP change noContent();
+        CommandResult result = await _service.CreateProject(createForm);
+        if (result.IsSuccessful)
+        {
+            return RedirectToAction("Index");
+        }
         return NoContent();
     }
 }

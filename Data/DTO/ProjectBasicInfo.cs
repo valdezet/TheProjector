@@ -14,7 +14,8 @@ public class ProjectBasicInfo
     [RegularExpression(@"^[A-Za-z\s-]+[^-\s]$")]
     public string Name { get; set; }
 
-
+    [Range(0, 999999999999999.9999)]
+    [RegularExpression(@"^\d{1,15}(\.\d{1,4})?$", ErrorMessage = "The Budget field should be a whole number or have up to at most 4 decimal places.")]
     public decimal Budget { get; set; }
 
     [StringLength(2048)]
