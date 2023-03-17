@@ -1,15 +1,15 @@
 @{
     @model TheProjector.Data.DTO.ProjectSearchCollection;
+    ViewData["Title"] = "Projects";
 
     string getURLWithNewQueryString(string key, object? newValue)
     {
-
         var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(Context.Request.QueryString.Value);
         query[key] = newValue.ToString();
-
         return Context.Request.Path + QueryString.Create(query).ToUriComponent();
-
     }
+
+    int[] itemsPerPageSelection = new int[] { 1, 2, 5, 10, 25, 50 };
 }
 
 <div>
@@ -28,16 +28,37 @@
                 <button type="submit"
                     class="btn btn-primary material-symbols-outlined d-block flex-shrink-1">search</button>
             </div>
+
         </form>
         @if (!String.IsNullOrEmpty(Model.NameSearch))
         {
             <p>Searching for: @Model.NameSearch <a asp-action="Index">Clear</a></p>
 
         }
+
     </div>
     @if (Model.Collection.Count > 0)
     {
-        <p>Showing @Model.Collection.Count items of @Model.TotalCount</p>
+        <div class="d-flex justify-content-between align-items-end">
+            <p>Showing @Model.Collection.Count items of @Model.TotalCount</p>
+            <div class="d-flex gap-1 align-items-baseline">
+                <p>Items per page</p>
+                <div class="dropdown">
+                    <a class="btn btn-light btn-sm dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                        @Model.ItemsPerPage
+
+                    </a>
+                    <ul class="dropdown-menu">
+                        @foreach (int item in itemsPerPageSelection)
+                        {
+                            <li><a class="dropdown-item" href='@getURLWithNewQueryString("ItemsPerPage", @item)'>@item</a></li>
+                        }
+
+                    </ul>
+                </div>
+            </div>
+        </div>
         <table class="table table-responsive">
             <thead>
                 <tr>
@@ -49,10 +70,14 @@
                 @foreach (var project in Model.Collection)
                 {
                     <tr>
+
+
                         <td>@project.Name</td>
                         <td>@project.BudgetShorthand</td>
                     </tr>
+
                 }
+
             </tbody>
         </table>
     }
