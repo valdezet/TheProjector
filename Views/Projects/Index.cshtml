@@ -1,6 +1,15 @@
 @{
     @model TheProjector.Data.DTO.ProjectSearchCollection;
 
+    string getURLWithNewQueryString(string key, object? newValue)
+    {
+
+        var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(Context.Request.QueryString.Value);
+        query[key] = newValue.ToString();
+
+        return Context.Request.Path + QueryString.Create(query).ToUriComponent();
+
+    }
 }
 
 <div>
@@ -55,24 +64,21 @@
     }
 
     <div class="btn-group gap-1 border">
-        <a class="btn btn-secondary"
-            href='@Url.Action("Index", new RouteValueDictionary(ViewContext.RouteData.Values) { { "Page", 1 } })'>
+        <a class="btn btn-secondary" href='@getURLWithNewQueryString("Page", "1")'>
             First
         </a>
         @* page numbers in between *@
         @for (int i = Model.FirstPageNumberDisplayed; i <= Model.LastPageNumberDisplayed; i++)
         {
             string classes = "btn btn-secondary";
-            string urlAction =
-            Url.Action("Index", new RouteValueDictionary(ViewContext.RouteData.Values) { { "Page", i } });
-
+            string urlAction = getURLWithNewQueryString("Page", $"{i}");
+            var routeData = ViewContext.RouteData.Values;
             if (Model.CurrentPage == i) classes += " active";
             <a class="@classes" href="@urlAction">
                 @i
             </a>
         }
-        <a class="btn btn-secondary"
-            href='@Url.Action("Index", new RouteValueDictionary(ViewContext.RouteData.Values) { { "Page", @Model.TotalPageCount } })'>
+        <a class="btn btn-secondary" href='@getURLWithNewQueryString("Page", Model.TotalPageCount)'>
             Last (@Model.TotalPageCount)
         </a>
     </div>
