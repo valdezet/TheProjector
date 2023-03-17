@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using TheProjector.Data.DTO.Form;
 using TheProjector.Data.DTO;
+using TheProjector.Data.Request;
 using TheProjector.Services;
 
 namespace TheProjector.Controllers;
@@ -15,9 +16,10 @@ public class ProjectsController : Controller
         _service = projectService;
     }
 
-    public IActionResult Index()
+    public async Task<IActionResult> Index(ProjectSearchRequest query)
     {
-        return View();
+        ProjectSearchCollection viewModel = await _service.SearchProject(query);
+        return View(viewModel);
     }
 
     public IActionResult Create()

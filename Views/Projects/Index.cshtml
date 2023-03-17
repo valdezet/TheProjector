@@ -1,8 +1,81 @@
+@{
+    @model TheProjector.Data.DTO.ProjectSearchCollection;
+
+}
+
 <div>
-    <h3>Projects </h3>
-    <a class="btn btn-primary" asp-action="Create">
-        New Project
-    </a>
+    <div class="mb-3">
+        <h3>Projects </h3>
+        <a class="btn btn-primary" asp-action="Create">
+            New Project
+        </a>
+    </div>
+
+
+    <div class="mb-3">
+        <form action="" method="GET">
+            <div class="d-flex gap-1">
+                <input type="text" name="Name" class="form-control " />
+                <button type="submit"
+                    class="btn btn-primary material-symbols-outlined d-block flex-shrink-1">search</button>
+            </div>
+        </form>
+        @if (!String.IsNullOrEmpty(Model.NameSearch))
+        {
+            <p>Searching for: @Model.NameSearch <a asp-action="Index">Clear</a></p>
+
+        }
+    </div>
+    @if (Model.Collection.Count > 0)
+    {
+        <p>Showing @Model.Collection.Count items of @Model.TotalCount</p>
+        <table class="table table-responsive">
+            <thead>
+                <tr>
+                    <th>Project Name</th>
+                    <th>Budget</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var project in Model.Collection)
+                {
+                    <tr>
+                        <td>@project.Name</td>
+                        <td>@project.BudgetShorthand</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p class="py-2 px-1">
+            No projects available
+        </p>
+    }
+
+    <div class="btn-group gap-1 border">
+        <a class="btn btn-secondary"
+            href='@Url.Action("Index", new RouteValueDictionary(ViewContext.RouteData.Values) { { "Page", 1 } })'>
+            First
+        </a>
+        @* page numbers in between *@
+        @for (int i = Model.FirstPageNumberDisplayed; i <= Model.LastPageNumberDisplayed; i++)
+        {
+            string classes = "btn btn-secondary";
+            string urlAction =
+            Url.Action("Index", new RouteValueDictionary(ViewContext.RouteData.Values) { { "Page", i } });
+
+            if (Model.CurrentPage == i) classes += " active";
+            <a class="@classes" href="@urlAction">
+                @i
+            </a>
+        }
+        <a class="btn btn-secondary"
+            href='@Url.Action("Index", new RouteValueDictionary(ViewContext.RouteData.Values) { { "Page", @Model.TotalPageCount } })'>
+            Last (@Model.TotalPageCount)
+        </a>
+    </div>
 
 
 

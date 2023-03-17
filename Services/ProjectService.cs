@@ -1,6 +1,8 @@
 using TheProjector.Data.DTO;
 using TheProjector.Data.DTO.Form;
+using TheProjector.Data.Request;
 using TheProjector.Data.Persistence;
+using Microsoft.EntityFrameworkCore;
 
 namespace TheProjector.Services;
 
@@ -13,6 +15,39 @@ public class ProjectService
         _dbContext = dbContext;
 
     }
+
+    public async Task<ProjectSearchCollection> SearchProject(ProjectSearchRequest query)
+    {
+        int itemsPerPage = query.ItemsPerPage;
+        int currentPage = query.Page;
+        int skip = itemsPerPage * (currentPage - 1);
+        string? nameSearch = query.Name;
+
+        IQueryable<Project> getProjectsQuery = _dbContext.Projects;
+
+        if (!String.IsNullOrEmpty(nameSearch))
+        {
+            getProjectsQuery = getProjectsQuery.Where(c => c.Name.Contains(nameSearch));
+        }
+
+        int projectCount = getProjectsQuery.Count();
+
+        getProjectsQuery = getProjectsQuery.Skip(skip).Take(itemsPerPage);
+
+        ICollection<ProjectListItemInfo> results = await getProjectsQuery
+            .Select(p => new ProjectListItemInfo { Id = p.Id, Name = p.Name, Budget = p.Budget })
+            .ToListAsync();
+
+        return new ProjectSearchCollection
+        {
+            NameSearch = nameSearch,
+            CurrentPage = currentPage,
+            ItemsPerPage = itemsPerPage,
+            TotalCount = projectCount,
+            Collection = results
+        };
+    }
+
     public async Task<CommandResult> CreateProject(ProjectForm form)
     {
         Project newProject = new Project
