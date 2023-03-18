@@ -1,0 +1,37 @@
+@{
+    @model TheProjector.Data.DTO.Form.PersonForm;
+
+}
+
+<div>
+
+    <h3>New Project</h3>
+
+    <form method="POST">
+        <div class="mb-3">
+            <label asp-for="FirstName"></label>
+            <input asp-for="FirstName" class="form-control" placeholder=" " />
+            <p class="p-0 m-0">
+                <span asp-validation-for="FirstName" class="text text-danger"></span>
+            </p>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="LastName"></label>
+            <input asp-for="LastName" class="form-control" placeholder=" " />
+            <p class="p-0 m-0">
+                <span asp-validation-for="LastName" class="text text-danger"></span>
+            </p>
+        </div>
+
+
+        @* TODO: implement Username password *@
+
+        <input type="submit" class="btn btn-primary" value="Create">
+
+
+    </form>
+
+
+
+</div>
