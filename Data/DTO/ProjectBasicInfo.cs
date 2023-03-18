@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using TheProjector.Extensions;
 
 namespace TheProjector.Data.DTO;
 
@@ -20,4 +21,8 @@ public class ProjectBasicInfo
 
     [StringLength(2048)]
     public string? Remarks { get; set; }
+
+    // Computed Properties
+
+    public string BudgetShortHand => Budget.Shorthand();
 }

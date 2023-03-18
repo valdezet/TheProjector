@@ -64,16 +64,16 @@
                 <tr>
                     <th>Project Name</th>
                     <th>Budget</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach (var project in Model.Collection)
                 {
                     <tr>
-
-
                         <td>@project.Name</td>
                         <td>@project.BudgetShorthand</td>
+                        <td><a asp-action="View" asp-route-id="@project.Id">View</a></td>
                     </tr>
 
                 }

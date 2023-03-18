@@ -1,0 +1,16 @@
+@{
+    @model TheProjector.Data.ViewModels.ProjectViewViewModel;
+    ViewData["Title"] = @Model.BasicInfo.Name;
+}
+
+<div>
+    <div class="mb-3">
+        <h4>@Model.BasicInfo.Name</h4>
+        <h5 class="text-muted">@Model.BasicInfo.Code</h5>
+    </div>
+
+    <p title="@Model.BasicInfo.Budget" class="mb-3">Budget: @Model.BasicInfo.BudgetShortHand</p>
+
+    <h5>Remarks</h5>
+    <p>@(Model.BasicInfo.Remarks ?? "None")</p>
+</div>

@@ -48,6 +48,20 @@ public class ProjectService
         };
     }
 
+    public async Task<ProjectBasicInfo> GetProjectBasicInfo(long id)
+    {
+        Project project = await _dbContext.Projects.Where(p => p.Id == id).FirstAsync();
+
+        return new ProjectBasicInfo
+        {
+            Id = project.Id,
+            Code = project.Code,
+            Name = project.Name,
+            Budget = project.Budget,
+            Remarks = project.Remarks
+        };
+    }
+
     public async Task<CommandResult> CreateProject(ProjectForm form)
     {
         Project newProject = new Project
