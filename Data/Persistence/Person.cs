@@ -15,4 +15,5 @@ public class Person
 
 
     // TODO user relation
+    public ICollection<Project> AssignedProjects { get; set; }
 }

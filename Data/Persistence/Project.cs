@@ -19,4 +19,6 @@ public class Project
 
     [StringLength(2048)]
     public string? Remarks { get; set; }
+
+    public ICollection<Person> AssignedPeople { get; set; }
 }
