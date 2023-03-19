@@ -1,6 +1,6 @@
 @{
     @model TheProjector.Data.ViewModels.ProjectViewViewModel;
-    ViewData["Title"] = @Model.BasicInfo.Name;
+ViewData["Title"] = @Model.BasicInfo.Name;
 }
 
 <div>
@@ -13,4 +13,24 @@
 
     <h5>Remarks</h5>
     <p>@(Model.BasicInfo.Remarks ?? "None")</p>
+
+    <div class="row">
+        <div class="col-md-2">
+            <p>Assign People</p>
+        </div>
+        <div class="col-md-10">
+            <form action="AssignPerson" method="POST">
+                <select name="person_id" class="form-select">
+                    <option>None Selected</option>
+                    @if (Model.AssignablePeople != null)
+                    {
+                        @foreach (var person in Model.AssignablePeople)
+                        {
+                            <option value="@person.Id">@person.Name</option>
+                        }
+                    }
+                </select>
+            </form>
+        </div>
+    </div>
 </div>

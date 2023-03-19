@@ -11,10 +11,12 @@ public class ProjectsController : Controller
 {
 
     private ProjectService _service;
+    private ProjectAssignmentService _assignmentService;
 
-    public ProjectsController(ProjectService projectService)
+    public ProjectsController(ProjectService projectService, ProjectAssignmentService projectAssignmentService)
     {
         _service = projectService;
+        _assignmentService = projectAssignmentService;
     }
 
     public async Task<IActionResult> Index(ProjectSearchRequest query)
@@ -28,9 +30,12 @@ public class ProjectsController : Controller
         try
         {
             ProjectBasicInfo projectInfo = await _service.GetProjectBasicInfo(id);
+            ICollection<PersonListItemInfo> assignablePeople = await _assignmentService.GetAssignablePeople(id);
+
             ProjectViewViewModel viewModel = new ProjectViewViewModel
             {
-                BasicInfo = projectInfo
+                BasicInfo = projectInfo,
+                AssignablePeople = assignablePeople
             };
             return View(viewModel);
         }
