@@ -66,12 +66,39 @@ ViewData["Title"] = @Model.BasicInfo.Name;
     </div>
 </div>
 
+<div class="modal fade" id="dialog-modal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="dialog-modal-title">Modal title</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="dialog-modal-body">
+                ...
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script>
         var unassignPersonAction = '@Url.Action("UnassignPerson")';
         var antiForgeryTokenElement = '@Html.AntiForgeryToken()';
 
         var $assignedPeople = $("tbody#assigned-people");
+
+        function openDialogModal(title, body) {
+            let $dialogModal = $("div#dialog-modal");
+            let $modalTitle = $dialogModal.find("#dialog-modal-title");
+            $modalTitle.html(title);
+            let $modalBody = $dialogModal.find("#dialog-modal-body");
+            $modalBody.html(body);
+            $dialogModal.modal("show");
+        }
+
         function clearAssignmentErrors() {
             $("#person-assignment-errors").html("");
         }
@@ -108,7 +135,7 @@ ViewData["Title"] = @Model.BasicInfo.Name;
             console.debug($form);
             console.debug("selected option:", $selectedOption.val());
             if ($selectedOption.val() === "0") {
-                window.alert("Please select a person to assign.");
+                openDialogModal("Assign Person", "Please select a person to assign.");
             }
             $.post(
                 $form.attr('action'),
@@ -118,17 +145,15 @@ ViewData["Title"] = @Model.BasicInfo.Name;
                     let id = $selectedOption.val();
                     $selectedOption.remove();
                     addAssignedPerson(id, name);
-                    window.alert(`${name} is successfully assigned to the project!`);
+                    openDialogModal("Assign Person", `${name} is successfully assigned to the project!`);
                 }
             ).fail(function (jqXHR, textStatus, errorThrown) {
                 if (jqXHR.status === 400) {
                     let errors = jqXHR.responseJSON;
 
-                    for (let key in errors) {
-                        $("#person-assignment-errors").append(
-                            $("<p class='text-danger'></p>").html(errors[key])
-                        );
-                    }
+                    $("#person-assignment-errors").append(
+                        $("<p class='text-danger'></p>").html(errors[""])
+                    );
                 }
             });
         });
@@ -146,10 +171,10 @@ ViewData["Title"] = @Model.BasicInfo.Name;
                     let idToRemove = $form.find("input[name='PersonId']").val();
                     addAssignablePersonToDropdown(idToRemove, nameToRemove);
                     $form.closest("tr").remove();
-                    window.alert(`${nameToRemove} has been successfully unassigned from the project!`);
+                    openDialogModal("Unassign Person", `${nameToRemove} has been successfully unassigned from the project!`);
                 }
             ).fail(function (jqXHR, textStatus, errorThrown) {
-                window.alert(jqXHR.responseJSON[""]);
+                openDialogModal("Unassign Person", jqXHR.responseJSON[""]);
             })
         });
 
