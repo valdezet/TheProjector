@@ -19,6 +19,38 @@ public class PersonService
 
     }
 
+    public async Task<PersonSearchCollection> SearchPeople(PersonSearchRequest query)
+    {
+        int itemsPerPage = query.ItemsPerPage;
+        int currentPage = query.Page;
+        int skip = itemsPerPage * (currentPage - 1);
+        string? nameSearch = query.Name;
+
+        IQueryable<Person> getPeopleQuery = _dbContext.People;
+
+        if (!String.IsNullOrEmpty(nameSearch))
+        {
+            getPeopleQuery = getPeopleQuery.Where(c => (c.FirstName + " " + c.LastName).Contains(nameSearch));
+        }
+
+        int projectCount = getPeopleQuery.Count();
+
+        getPeopleQuery = getPeopleQuery.Skip(skip).Take(itemsPerPage);
+
+        ICollection<PersonListItemInfo> results = await getPeopleQuery
+            .Select(p => new PersonListItemInfo { Id = p.Id, Name = p.FullName })
+            .ToListAsync();
+
+        return new PersonSearchCollection
+        {
+            NameSearch = nameSearch,
+            CurrentPage = currentPage,
+            ItemsPerPage = itemsPerPage,
+            TotalCount = projectCount,
+            Collection = results
+        };
+    }
+
 
     public async Task<CommandResult> CreatePerson(PersonForm form)
     {

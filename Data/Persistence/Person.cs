@@ -14,6 +14,9 @@ public class Person
     public string? LastName { get; set; }
 
 
-    // TODO user relation
     public ICollection<Project> AssignedProjects { get; set; }
+
+    /* calculated properties */
+
+    public string FullName => FirstName + " " + LastName;
 }

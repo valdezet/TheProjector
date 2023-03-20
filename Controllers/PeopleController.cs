@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using TheProjector.Data.DTO.Form;
 using TheProjector.Services;
 using TheProjector.Data.DTO;
+using TheProjector.Data.Request;
 
 namespace TheProjector.Controllers;
 
@@ -16,9 +17,15 @@ public class PeopleController : Controller
         _service = personService;
     }
 
-    public IActionResult Index()
+    public async Task<IActionResult> Index(PersonSearchRequest query)
     {
-        return View();
+        PersonSearchCollection results = await _service.SearchPeople(query);
+        if (results.CurrentPage > results.TotalPageCount)
+        {
+            query.Page = 1;
+            return RedirectToAction("Index", query);
+        }
+        return View(results);
     }
 
     [HttpGet]

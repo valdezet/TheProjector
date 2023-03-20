@@ -1,5 +1,15 @@
 @{
-    ViewData["Title"] = "People";
+    @model TheProjector.Data.DTO.PersonSearchCollection;
+ViewData["Title"] = "People";
+
+    string getURLWithNewQueryString(string key, object? newValue)
+    {
+        var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(Context.Request.QueryString.Value);
+        query[key] = newValue.ToString();
+        return Context.Request.Path + QueryString.Create(query).ToUriComponent();
+    }
+
+    int[] itemsPerPageSelection = new int[] { 1, 2, 5, 10, 25, 50 };
 }
 
 <div>
@@ -10,4 +20,88 @@
         </a>
     </div>
 
+    <div class="mb-3">
+        <form action="" method="GET">
+            <div class="d-flex gap-1">
+                <input type="text" name="Name" class="form-control " />
+                <button type="submit"
+                    class="btn btn-primary material-symbols-outlined d-block flex-shrink-1">search</button>
+            </div>
+
+        </form>
+        @if (!String.IsNullOrEmpty(Model.NameSearch))
+        {
+            <p>Searching for: @Model.NameSearch <a asp-action="Index">Clear</a></p>
+
+        }
+
+    </div>
+    @if (Model.Collection.Count > 0)
+    {
+        <div class="d-flex justify-content-between align-items-end">
+            <p>Showing @Model.Collection.Count items of @Model.TotalCount</p>
+            <div class="d-flex gap-1 align-items-baseline">
+                <p>Items per page</p>
+                <div class="dropdown">
+                    <a class="btn btn-light btn-sm dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                        @Model.ItemsPerPage
+
+                    </a>
+                    <ul class="dropdown-menu">
+                        @foreach (int item in itemsPerPageSelection)
+                        {
+                            <li><a class="dropdown-item" href='@getURLWithNewQueryString("ItemsPerPage", @item)'>@item</a></li>
+                        }
+
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <table class="table table-responsive">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var person in Model.Collection)
+                {
+                    <tr>
+                        <td>@person.Name</td>
+                        <td><a asp-action="View" asp-route-id="@person.Id">View</a></td>
+                    </tr>
+
+                }
+
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p class="py-2 px-1">
+            No projects available
+        </p>
+    }
+
+    <div class="btn-group gap-1 border">
+        <a class="btn btn-secondary" href='@getURLWithNewQueryString("Page", "1")'>
+            First
+        </a>
+        @* page numbers in between *@
+        @for (int i = Model.FirstPageNumberDisplayed; i <= Model.LastPageNumberDisplayed; i++)
+        {
+            string classes = "btn btn-secondary";
+            string urlAction = getURLWithNewQueryString("Page", $"{i}");
+            var routeData = ViewContext.RouteData.Values;
+            if (Model.CurrentPage == i) classes += " active";
+            <a class="@classes" href="@urlAction">
+                @i
+            </a>
+        }
+        <a class="btn btn-secondary" href='@getURLWithNewQueryString("Page", Model.TotalPageCount)'>
+            Last (@Model.TotalPageCount)
+        </a>
+    </div>
 </div>
