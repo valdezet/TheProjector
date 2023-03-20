@@ -51,6 +51,17 @@ public class PersonService
         };
     }
 
+    public async Task<PersonBasicInfo> GetPersonBasicInfo(long id)
+    {
+        Person person = await _dbContext.People.Where(p => p.Id == id).FirstAsync();
+
+        return new PersonBasicInfo
+        {
+            Id = person.Id,
+            FirstName = person.FirstName,
+            LastName = person.LastName
+        };
+    }
 
     public async Task<CommandResult> CreatePerson(PersonForm form)
     {

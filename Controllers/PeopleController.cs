@@ -3,6 +3,7 @@ using TheProjector.Data.DTO.Form;
 using TheProjector.Services;
 using TheProjector.Data.DTO;
 using TheProjector.Data.Request;
+using TheProjector.Data.ViewModels;
 
 namespace TheProjector.Controllers;
 
@@ -26,6 +27,25 @@ public class PeopleController : Controller
             return RedirectToAction("Index", query);
         }
         return View(results);
+    }
+
+    public async Task<IActionResult> View(long id)
+    {
+        try
+        {
+            PersonBasicInfo personInfo = await _service.GetPersonBasicInfo(id);
+
+            PersonViewViewModel viewModel = new PersonViewViewModel
+            {
+                BasicInfo = personInfo,
+            };
+            return View(viewModel);
+        }
+        catch (Exception e) when (e is ArgumentNullException || e is InvalidOperationException)
+        {
+            return NotFound();
+        }
+
     }
 
     [HttpGet]

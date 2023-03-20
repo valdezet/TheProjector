@@ -1,0 +1,19 @@
+@{
+    @model TheProjector.Data.ViewModels.PersonViewViewModel;
+ViewData["Title"] = @Model.BasicInfo.FullName;
+}
+
+<div>
+    <div class="mb-3">
+        <h4>@Model.BasicInfo.FullName</h4>
+    </div>
+
+
+
+    <div class="row">
+        <div class="col-md-2">
+            <p>Projects assigned to:</p>
+        </div>
+        <p>WIP</p>
+    </div>
+</div>

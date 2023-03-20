@@ -17,4 +17,8 @@ public class PersonBasicInfo
     [RegularExpression(@"^[a-zA-Z\s,'-]+$", ErrorMessage = "Only English Alphabet letters, dashes (-), spaces, and comma is allowed.")]
     [Display(Name = "Last Name")]
     public string? LastName { get; set; }
+
+    /* computed properties, do not handle in CRUD. */
+
+    public string FullName => FirstName + " " + LastName;
 }
