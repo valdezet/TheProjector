@@ -95,4 +95,21 @@ public class ProjectsController : Controller
             return BadRequest(ModelState);
         }
     }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Route("/[controller]/{projectId:long}/[action]")]
+    public async Task<IActionResult> UnassignPerson(ProjectPersonPairRequest pair)
+    {
+        CommandResult result = await _assignmentService.UnassignPerson(pair);
+        if (result.IsSuccessful)
+        {
+            return NoContent();
+        }
+        else
+        {
+            ModelState.AddModelError(String.Empty, result.ErrorMessage!);
+            return BadRequest(ModelState);
+        }
+    }
 }

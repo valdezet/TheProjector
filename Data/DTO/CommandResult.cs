@@ -4,7 +4,9 @@ public class CommandResult
 {
     public bool IsSuccessful { get; private set; }
 
-    public List<string>? ErrorMessages { get; private set; }
+    public string? ErrorMessage { get; private set; }
+
+    public Object? Data { get; set; }
 
     public static CommandResult Success()
     {
@@ -14,20 +16,22 @@ public class CommandResult
         };
     }
 
-    public static CommandResult Fail(List<string> errorMessages)
+    public static CommandResult Success(object data)
     {
         return new CommandResult
         {
-            IsSuccessful = false,
-            ErrorMessages = errorMessages
+            IsSuccessful = true,
+            Data = data
         };
     }
 
     public static CommandResult Fail(string errorMessage)
     {
-        List<string> errors = new List<string>();
-        errors.Add(errorMessage);
-        return Fail(errors);
+        return new CommandResult
+        {
+            IsSuccessful = false,
+            ErrorMessage = errorMessage
+        };
     }
 
 }

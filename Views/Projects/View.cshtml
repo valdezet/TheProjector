@@ -40,6 +40,10 @@ ViewData["Title"] = @Model.BasicInfo.Name;
     <div class="col-mb-3">
         <h4>Assigned People</h4>
         <table class="table table-sm">
+            <colgroup>
+                <col class="col-11">
+                <col class="col-1">
+            </colgroup>
             <thead>
                 <th>Name</th>
                 <th>Actions</th>
@@ -48,9 +52,9 @@ ViewData["Title"] = @Model.BasicInfo.Name;
                 @foreach (var person in Model.AssignedPeople)
                 {
                     <tr>
-                        <td>@person.Name</td>
+                        <td data-purpose="person-name-column">@person.Name</td>
                         <td>
-                            <form asp-action="UnassignPerson">
+                            <form asp-action="UnassignPerson" data-purpose="unassign-person">
                                 <input type="hidden" name="PersonId" value="@person.Id" />
                                 <input type="submit" class="btn btn-danger" value="Unassign" />
                             </form>
@@ -65,6 +69,7 @@ ViewData["Title"] = @Model.BasicInfo.Name;
 @section Scripts {
     <script>
         var unassignPersonAction = '@Url.Action("UnassignPerson")';
+        var antiForgeryTokenElement = '@Html.AntiForgeryToken()';
 
         var $assignedPeople = $("tbody#assigned-people");
         function clearAssignmentErrors() {
@@ -73,18 +78,26 @@ ViewData["Title"] = @Model.BasicInfo.Name;
 
         function addAssignedPerson(id, name) {
             let $newRow = $("<tr></tr");
-            let $newNameTd = $("<td></td>").html(name);
+            let $newNameTd = $("<td data-purpose='person-name-column'></td>").html(name);
             $newRow.append($newNameTd);
             let $removeTd = $("<td></td>");
-            let $removeForm = $("<form></form>");
+            let $removeForm = $("<form data-purpose='unassign-person'></form>");
             $removeForm.attr("action", unassignPersonAction);
+            $removeForm.data("form-purpose", "unassign-person");
             let $removeIdHidden = $(`<input type='hidden' name='PersonId' value='${id}'/>`);
             $removeForm.append($removeIdHidden);
             let $removeButton = $("<input type='submit' class='btn btn-danger' value='Unassign'/>");
             $removeForm.append($removeButton);
+            $removeForm.append(antiForgeryTokenElement);
             $removeTd.append($removeForm);
             $newRow.append($removeTd);
             $assignedPeople.append($newRow);
+        }
+
+        function addAssignablePersonToDropdown(id, name) {
+            let $assignableSelect = $("form#assign-person select");
+            let $newOption = $(`<option value=${id}>${name}</option>`);
+            $assignableSelect.append($newOption);
         }
 
         $("form#assign-person").submit(function (e) {
@@ -101,10 +114,11 @@ ViewData["Title"] = @Model.BasicInfo.Name;
                 $form.attr('action'),
                 $form.serialize(),
                 function (data) {
+                    let name = $selectedOption.html();
+                    let id = $selectedOption.val();
                     $selectedOption.remove();
-                    window.alert("The Person is successfully assigned to the project");
-
-                    addAssignedPerson($selectedOption.val(), $selectedOption.html());
+                    addAssignedPerson(id, name);
+                    window.alert(`${name} is successfully assigned to the project!`);
                 }
             ).fail(function (jqXHR, textStatus, errorThrown) {
                 if (jqXHR.status === 400) {
@@ -117,7 +131,27 @@ ViewData["Title"] = @Model.BasicInfo.Name;
                     }
                 }
             });
-        })
+        });
+
+        $("tbody#assigned-people").on('submit', "form[data-purpose='unassign-person']", function (e) {
+            e.preventDefault();
+            let $form = $(e.target);
+            let formAction = $form.attr("action");
+            $.post(
+                formAction,
+                $form.serialize(),
+                function (data) {
+                    let $rowToRemove = $($form.closest("tr"));
+                    let nameToRemove = $rowToRemove.find("td[data-purpose='person-name-column']").html();
+                    let idToRemove = $form.find("input[name='PersonId']").val();
+                    addAssignablePersonToDropdown(idToRemove, nameToRemove);
+                    $form.closest("tr").remove();
+                    window.alert(`${nameToRemove} has been successfully unassigned from the project!`);
+                }
+            ).fail(function (jqXHR, textStatus, errorThrown) {
+                window.alert(jqXHR.responseJSON[""]);
+            })
+        });
 
     </script>
 }
