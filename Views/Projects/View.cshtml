@@ -44,12 +44,17 @@ ViewData["Title"] = @Model.BasicInfo.Name;
                 <th>Name</th>
                 <th>Actions</th>
             </thead>
-            <tbody>
+            <tbody id="assigned-people">
                 @foreach (var person in Model.AssignedPeople)
                 {
                     <tr>
                         <td>@person.Name</td>
-                        <td><a asp-action="UnassignPerson" asp-route-ProjectId="@Model.BasicInfo.Id">Remove</a></td>
+                        <td>
+                            <form asp-action="UnassignPerson">
+                                <input type="hidden" name="PersonId" value="@person.Id" />
+                                <input type="submit" class="btn btn-danger" value="Unassign" />
+                            </form>
+                        </td>
                     </tr>
                 }
             </tbody>
@@ -59,8 +64,27 @@ ViewData["Title"] = @Model.BasicInfo.Name;
 
 @section Scripts {
     <script>
+        var unassignPersonAction = '@Url.Action("UnassignPerson")';
+
+        var $assignedPeople = $("tbody#assigned-people");
         function clearAssignmentErrors() {
             $("#person-assignment-errors").html("");
+        }
+
+        function addAssignedPerson(id, name) {
+            let $newRow = $("<tr></tr");
+            let $newNameTd = $("<td></td>").html(name);
+            $newRow.append($newNameTd);
+            let $removeTd = $("<td></td>");
+            let $removeForm = $("<form></form>");
+            $removeForm.attr("action", unassignPersonAction);
+            let $removeIdHidden = $(`<input type='hidden' name='PersonId' value='${id}'/>`);
+            $removeForm.append($removeIdHidden);
+            let $removeButton = $("<input type='submit' class='btn btn-danger' value='Unassign'/>");
+            $removeForm.append($removeButton);
+            $removeTd.append($removeForm);
+            $newRow.append($removeTd);
+            $assignedPeople.append($newRow);
         }
 
         $("form#assign-person").submit(function (e) {
@@ -79,12 +103,14 @@ ViewData["Title"] = @Model.BasicInfo.Name;
                 function (data) {
                     $selectedOption.remove();
                     window.alert("The Person is successfully assigned to the project");
+
+                    addAssignedPerson($selectedOption.val(), $selectedOption.html());
                 }
             ).fail(function (jqXHR, textStatus, errorThrown) {
                 if (jqXHR.status === 400) {
                     let errors = jqXHR.responseJSON;
 
-                    for (var key in errors) {
+                    for (let key in errors) {
                         $("#person-assignment-errors").append(
                             $("<p class='text-danger'></p>").html(errors[key])
                         );
