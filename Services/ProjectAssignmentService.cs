@@ -36,6 +36,18 @@ public class ProjectAssignmentService
         return people;
     }
 
+    public async Task<ICollection<PersonListItemInfo>> GetAssignedPeople(long projectId)
+    {
+        ICollection<PersonListItemInfo> people = await (
+            from person in _dbContext.People
+            join ppa in _dbContext.PersonProjectAssignments on person.Id equals ppa.PersonId
+            where ppa.ProjectId == projectId
+            select new PersonListItemInfo { Name = person.FullName, Id = person.Id }
+        ).ToListAsync();
+
+        return people;
+    }
+
     public async Task<CommandResult> AssignPerson(ProjectPersonPairRequest pair)
     {
         try

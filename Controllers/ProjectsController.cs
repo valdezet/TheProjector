@@ -36,11 +36,13 @@ public class ProjectsController : Controller
         {
             ProjectBasicInfo projectInfo = await _service.GetProjectBasicInfo(id);
             ICollection<PersonListItemInfo> assignablePeople = await _assignmentService.GetAssignablePeople(id);
+            ICollection<PersonListItemInfo> assignedPeople = await _assignmentService.GetAssignedPeople(id);
 
             ProjectViewViewModel viewModel = new ProjectViewViewModel
             {
                 BasicInfo = projectInfo,
-                AssignablePeople = assignablePeople
+                AssignablePeople = assignablePeople,
+                AssignedPeople = assignedPeople
             };
             return View(viewModel);
         }

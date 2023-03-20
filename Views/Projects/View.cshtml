@@ -15,7 +15,7 @@ ViewData["Title"] = @Model.BasicInfo.Name;
     <p>@(Model.BasicInfo.Remarks ?? "None")</p>
     <hr />
     <div class="col-mb-2">
-        <p>Assign People</p>
+        <h4>Assign People</h4>
         <form id="assign-person" asp-action="AssignPerson" class="row">
             <div class="col-sm-10 col-md-11">
                 <select name="PersonId" class="form-select">
@@ -36,6 +36,24 @@ ViewData["Title"] = @Model.BasicInfo.Name;
         <div id="person-assignment-errors">
 
         </div>
+    </div>
+    <div class="col-mb-3">
+        <h4>Assigned People</h4>
+        <table class="table table-sm">
+            <thead>
+                <th>Name</th>
+                <th>Actions</th>
+            </thead>
+            <tbody>
+                @foreach (var person in Model.AssignedPeople)
+                {
+                    <tr>
+                        <td>@person.Name</td>
+                        <td><a asp-action="UnassignPerson" asp-route-ProjectId="@Model.BasicInfo.Id">Remove</a></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
     </div>
 </div>
 
