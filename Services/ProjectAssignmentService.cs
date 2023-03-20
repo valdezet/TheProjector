@@ -35,4 +35,25 @@ public class ProjectAssignmentService
                 .ToListAsync();
         return people;
     }
+
+    public async Task<CommandResult> AssignPerson(ProjectPersonPairRequest pair)
+    {
+        try
+        {
+
+            PersonProjectAssignment ppa = new PersonProjectAssignment
+            {
+                ProjectId = pair.ProjectId,
+                PersonId = pair.PersonId
+            };
+            _dbContext.Add(ppa);
+            await _dbContext.SaveChangesAsync();
+            return CommandResult.Success();
+        }
+        catch (DbUpdateException)
+        {
+            return CommandResult.Fail("There was an error in assigning the person");
+        }
+
+    }
 }

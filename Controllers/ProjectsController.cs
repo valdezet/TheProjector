@@ -76,4 +76,21 @@ public class ProjectsController : Controller
         }
         return NoContent();
     }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Route("/[controller]/{projectId:long}/[action]")]
+    public async Task<IActionResult> AssignPerson(ProjectPersonPairRequest pair)
+    {
+        CommandResult result = await _assignmentService.AssignPerson(pair);
+        if (result.IsSuccessful)
+        {
+            return NoContent();
+        }
+        else
+        {
+            ModelState.AddModelError(String.Empty, "Error in assigning Person. The Person might not exist or is probably already assigned to the project.");
+            return BadRequest(ModelState);
+        }
+    }
 }

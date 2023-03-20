@@ -13,15 +13,13 @@ ViewData["Title"] = @Model.BasicInfo.Name;
 
     <h5>Remarks</h5>
     <p>@(Model.BasicInfo.Remarks ?? "None")</p>
-
-    <div class="row">
-        <div class="col-md-2">
-            <p>Assign People</p>
-        </div>
-        <div class="col-md-10">
-            <form action="AssignPerson" method="POST">
-                <select name="person_id" class="form-select">
-                    <option>None Selected</option>
+    <hr />
+    <div class="col-mb-2">
+        <p>Assign People</p>
+        <form id="assign-person" asp-action="AssignPerson" class="row">
+            <div class="col-sm-10 col-md-11">
+                <select name="PersonId" class="form-select">
+                    <option disabled value="0" selected>None Selected</option>
                     @if (Model.AssignablePeople != null)
                     {
                         @foreach (var person in Model.AssignablePeople)
@@ -30,7 +28,52 @@ ViewData["Title"] = @Model.BasicInfo.Name;
                         }
                     }
                 </select>
-            </form>
+            </div>
+            <div class="col-sm-2 col-md-1">
+                <input type="submit" value="Assign" class="btn btn-primary">
+            </div>
+        </form>
+        <div id="person-assignment-errors">
+
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        function clearAssignmentErrors() {
+            $("#person-assignment-errors").html("");
+        }
+
+        $("form#assign-person").submit(function (e) {
+            e.preventDefault();
+            clearAssignmentErrors();
+            let $form = $(e.target);
+            let $selectedOption = $form.find("option:selected");
+            console.debug($form);
+            console.debug("selected option:", $selectedOption.val());
+            if ($selectedOption.val() === "0") {
+                window.alert("Please select a person to assign.");
+            }
+            $.post(
+                $form.attr('action'),
+                $form.serialize(),
+                function (data) {
+                    $selectedOption.remove();
+                    window.alert("The Person is successfully assigned to the project");
+                }
+            ).fail(function (jqXHR, textStatus, errorThrown) {
+                if (jqXHR.status === 400) {
+                    let errors = jqXHR.responseJSON;
+
+                    for (var key in errors) {
+                        $("#person-assignment-errors").append(
+                            $("<p class='text-danger'></p>").html(errors[key])
+                        );
+                    }
+                }
+            });
+        })
+
+    </script>
+}
