@@ -8,11 +8,11 @@ public class ProjectBasicInfo
     public long Id { get; set; } = 0;
 
     [StringLength(128)]
-    [RegularExpression(@"^[a-z-]+$", ErrorMessage = "The Code can only contain lowercase letters a-z and dashes(-)")]
+    [RegularExpression(@"^[a-z-0-9]+$", ErrorMessage = "The Code can only contain lowercase letters a-z and dashes(-)")]
     public string Code { get; set; }
 
     [StringLength(128)]
-    [RegularExpression(@"^[A-Za-z\s-]+[^-\s]$")]
+    [RegularExpression(@"^[A-Za-z0-9\s-]+[^-\s]$", ErrorMessage = "The Code can only contain letters a-z, numbers, spaces and dashes(-). It should also not end with spaces.")]
     public string Name { get; set; }
 
     [Range(0, 999999999999999.9999)]

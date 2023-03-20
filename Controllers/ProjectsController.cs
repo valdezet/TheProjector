@@ -55,6 +55,11 @@ public class ProjectsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(ProjectForm createForm)
     {
+        if (await _service.CheckCodeExistence(createForm.Code))
+        {
+            ModelState.AddModelError("Code", "The code is already taken by another project.");
+        }
+
         if (!ModelState.IsValid)
         {
             return View(createForm);

@@ -62,6 +62,11 @@ public class ProjectService
         };
     }
 
+    public async Task<bool> CheckCodeExistence(string projectCode)
+    {
+        return await _dbContext.Projects.AnyAsync(project => project.Code == projectCode);
+    }
+
     public async Task<CommandResult> CreateProject(ProjectForm form)
     {
         Project newProject = new Project
