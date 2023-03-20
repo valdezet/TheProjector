@@ -22,6 +22,11 @@ public class ProjectsController : Controller
     public async Task<IActionResult> Index(ProjectSearchRequest query)
     {
         ProjectSearchCollection viewModel = await _service.SearchProject(query);
+        if (viewModel.CurrentPage > viewModel.TotalPageCount)
+        {
+            query.Page = 1;
+            return RedirectToAction("Index", query);
+        }
         return View(viewModel);
     }
 
