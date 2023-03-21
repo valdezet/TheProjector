@@ -16,5 +16,13 @@ public class TheProjectorDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<Project>()
+        .HasMany(project => project.AssignedPeople)
+        .WithMany(person => person.AssignedProjects)
+        .UsingEntity<Dictionary<string, object>>(
+            "PersonProject",
+            x => x.HasOne<Person>().WithMany().OnDelete(DeleteBehavior.Restrict),
+            x => x.HasOne<Project>().WithMany().OnDelete(DeleteBehavior.Restrict)
+        );
     }
 }

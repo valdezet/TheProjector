@@ -93,13 +93,13 @@ namespace TheProjector.Migrations
                     b.HasOne("TheProjector.Data.Persistence.Person", null)
                         .WithMany()
                         .HasForeignKey("AssignedPeopleId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("TheProjector.Data.Persistence.Project", null)
                         .WithMany()
                         .HasForeignKey("AssignedProjectsId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 #pragma warning restore 612, 618

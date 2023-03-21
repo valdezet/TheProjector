@@ -10,9 +10,6 @@ namespace TheProjector.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "PersonProjectAssignments");
-
             migrationBuilder.CreateTable(
                 name: "PersonProject",
                 columns: table => new
@@ -28,26 +25,30 @@ namespace TheProjector.Migrations
                         column: x => x.AssignedPeopleId,
                         principalTable: "People",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_PersonProject_Projects_AssignedProjectsId",
                         column: x => x.AssignedProjectsId,
                         principalTable: "Projects",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(
                 name: "IX_PersonProject_AssignedProjectsId",
                 table: "PersonProject",
                 column: "AssignedProjectsId");
+
+
+            migrationBuilder.Sql("INSERT INTO PersonProject(AssignedPeopleId, AssignedProjectsId) SELECT PersonId, ProjectId FROM PersonProjectAssignments");
+
+            migrationBuilder.DropTable(
+                name: "PersonProjectAssignments");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "PersonProject");
 
             migrationBuilder.CreateTable(
                 name: "PersonProjectAssignments",
@@ -77,6 +78,11 @@ namespace TheProjector.Migrations
                 name: "IX_PersonProjectAssignments_ProjectId",
                 table: "PersonProjectAssignments",
                 column: "ProjectId");
+
+            migrationBuilder.Sql("INSERT INTO  PersonProjectAssignments (PersonId, ProjectId)  SELECT AssignedPeopleId, AssignedProjectsId FROM PersonProject");
+
+            migrationBuilder.DropTable(
+                name: "PersonProject");
         }
     }
 }

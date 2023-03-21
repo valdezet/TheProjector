@@ -11,7 +11,7 @@ using TheProjector.Data.Persistence;
 namespace TheProjector.Migrations
 {
     [DbContext(typeof(TheProjectorDbContext))]
-    [Migration("20230321132244_RemoveIntermediateProjectPersonEntity")]
+    [Migration("20230321135738_RemoveIntermediateProjectPersonEntity")]
     partial class RemoveIntermediateProjectPersonEntity
     {
         /// <inheritdoc />
@@ -96,13 +96,13 @@ namespace TheProjector.Migrations
                     b.HasOne("TheProjector.Data.Persistence.Person", null)
                         .WithMany()
                         .HasForeignKey("AssignedPeopleId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("TheProjector.Data.Persistence.Project", null)
                         .WithMany()
                         .HasForeignKey("AssignedProjectsId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 #pragma warning restore 612, 618
