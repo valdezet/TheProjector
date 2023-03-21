@@ -13,38 +13,29 @@ public class ProjectAssignmentService
         _dbContext = dbContext;
     }
 
+    // separate method for DRY
+    private IQueryable<Person> GetPeopleAssignedToProjectQuery(long projectId)
+    {
+        return _dbContext.Projects
+            .Where(project => project.Id == projectId)
+            .SelectMany(project => project.AssignedPeople);
+    }
+
     public async Task<ICollection<PersonListItemInfo>> GetAssignablePeople(long projectId)
     {
+        var assignedPeopleQuery = GetPeopleAssignedToProjectQuery(projectId);
         ICollection<PersonListItemInfo> people = await _dbContext.People
-                .GroupJoin(
-                    _dbContext.PersonProjectAssignments.Where(ppa => ppa.ProjectId == projectId),
-                    person => person.Id,
-                    ppa => ppa.PersonId,
-                    (person, ppa) => new { person, ppa }
-                )
-                .SelectMany(
-                    joined => joined.ppa.DefaultIfEmpty(),
-                    (joined, ppa) => new { person = joined.person, ppa = ppa }
-                )
-                .Where(joined => joined.ppa == null)
-                .Select(joined => new PersonListItemInfo
-                {
-                    Id = joined.person.Id,
-                    Name = String.Join(" ", joined.person.FirstName, joined.person.LastName)
-                })
-                .ToListAsync();
+            .Where(person => !assignedPeopleQuery.Select(assigned => assigned.Id).Contains(person.Id))
+            .Select(assignable => new PersonListItemInfo { Id = assignable.Id, Name = assignable.FullName })
+            .ToListAsync();
         return people;
     }
 
     public async Task<ICollection<PersonListItemInfo>> GetAssignedPeople(long projectId)
     {
-        ICollection<PersonListItemInfo> people = await (
-            from person in _dbContext.People
-            join ppa in _dbContext.PersonProjectAssignments on person.Id equals ppa.PersonId
-            where ppa.ProjectId == projectId
-            select new PersonListItemInfo { Name = person.FullName, Id = person.Id }
-        ).ToListAsync();
-
+        ICollection<PersonListItemInfo> people = await GetPeopleAssignedToProjectQuery(projectId)
+            .Select(assigned => new PersonListItemInfo { Id = assigned.Id, Name = assigned.FullName })
+            .ToListAsync();
         return people;
     }
 
