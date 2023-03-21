@@ -128,4 +128,19 @@ public class ProjectsController : Controller
         }
 
     }
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Unarchive(long id)
+    {
+        CommandResult result = await _service.UnarchiveProject(id);
+        if (result.IsSuccessful)
+        {
+            return NoContent();
+        }
+        else
+        {
+            ModelState.AddModelError(String.Empty, result.ErrorMessage!);
+            return BadRequest(ModelState);
+        }
+    }
 }

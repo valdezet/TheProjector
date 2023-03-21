@@ -18,9 +18,18 @@ ViewData["Title"] = @Model.BasicInfo.Name;
             }
         </div>
         <div>
-            <form asp-action="Archive" method="POST" id='archive-form'>
-                <input type="submit" value="Mark as Archived" class="btn btn-secondary">
-            </form>
+            @if (!Model.BasicInfo.IsArchived)
+            {
+                <form asp-action="Archive" method="POST" id='archive-form'>
+                    <input type="submit" value="Mark as Archived" class="btn btn-secondary">
+                </form>
+            }
+            else
+            {
+                <form asp-action="Unarchive" method="POST" id='unarchive-form'>
+                    <input type="submit" value="Unarchive" class="btn btn-secondary">
+                </form>
+            }
         </div>
     </div>
 
@@ -225,6 +234,7 @@ ViewData["Title"] = @Model.BasicInfo.Name;
         });
 
         // archive project
+
         let $archiveForm = $("form#archive-form");
         $archiveForm.submit(function (e) {
             e.preventDefault();
@@ -235,11 +245,11 @@ ViewData["Title"] = @Model.BasicInfo.Name;
                     openDialogModal("Archive Project", `<p>@Model.BasicInfo.Name is successfully archived!</p> <p>Reloading in 3 seconds.</p>`);
                     setTimeout(function () {
                         location.reload();
-                    }, 2 * 1000);
+                    }, 3 * 1000);
                 }
             ).fail(function (jqXHR, textStatus, errorThrown) {
                 openDialogModal("Archive Project", jqXHR.responseJSON[""]);
-            })
+            });
         });
 
         // convert datetime archive
@@ -247,6 +257,25 @@ ViewData["Title"] = @Model.BasicInfo.Name;
         if ($archiveDateElement) {
             let timestampedUtc = $archiveDateElement.data("archived-utc") + "Z";
             $archiveDateElement.html(new Date(timestampedUtc).toLocaleString());
+        }
+
+        var $unarchiveForm = $("form#unarchive-form");
+        if ($unarchiveForm) {
+            $unarchiveForm.submit(function (e) {
+                e.preventDefault();
+                $.post(
+                    $unarchiveForm.attr("action"),
+                    $unarchiveForm.serialize(),
+                    function () {
+                        openDialogModal("Unarchive Project", `<p>@Model.BasicInfo.Name is now active again!</p> <p>Reloading in 3 seconds.</p>`);
+                        setTimeout(function () {
+                            location.reload();
+                        }, 3 * 1000);
+                    }
+                ).fail(function (jqXHR, textStatus, errorThrown) {
+                    openDialogModal("Unarchive Project", jqXHR.responseJSON[""]);
+                });
+            });
         }
     </script>
 }
