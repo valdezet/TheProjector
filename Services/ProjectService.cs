@@ -31,7 +31,7 @@ public class ProjectService
 
         int projectCount = getProjectsQuery.Count();
 
-        getProjectsQuery = getProjectsQuery.Skip(skip).Take(itemsPerPage);
+        getProjectsQuery = getProjectsQuery.OrderBy(project => project.Id).Skip(skip).Take(itemsPerPage);
 
         ICollection<ProjectListItemInfo> results = await getProjectsQuery
             .Select(p => new ProjectListItemInfo { Id = p.Id, Name = p.Name, Budget = p.Budget })

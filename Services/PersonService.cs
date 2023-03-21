@@ -35,7 +35,7 @@ public class PersonService
 
         int projectCount = getPeopleQuery.Count();
 
-        getPeopleQuery = getPeopleQuery.Skip(skip).Take(itemsPerPage);
+        getPeopleQuery = getPeopleQuery.OrderBy(person => person.Id).Skip(skip).Take(itemsPerPage);
 
         ICollection<PersonListItemInfo> results = await getPeopleQuery
             .Select(p => new PersonListItemInfo { Id = p.Id, Name = p.FullName })
