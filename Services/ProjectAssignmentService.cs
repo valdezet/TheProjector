@@ -43,19 +43,27 @@ public class ProjectAssignmentService
     {
         try
         {
-
-            PersonProjectAssignment ppa = new PersonProjectAssignment
+            Project? project = await _dbContext.Projects.FindAsync(pair.ProjectId);
+            if (project == null)
             {
-                ProjectId = pair.ProjectId,
-                PersonId = pair.PersonId
-            };
-            _dbContext.Add(ppa);
+                return CommandResult.Fail("Project not found.");
+            }
+
+            Person? person = await _dbContext.People.FindAsync(pair.PersonId);
+            if (person == null)
+            {
+                return CommandResult.Fail("Person not found.");
+            }
+            // instantiate with empty list to avoid querying.
+            project.AssignedPeople = new List<Person>();
+            project.AssignedPeople.Add(person);
             await _dbContext.SaveChangesAsync();
             return CommandResult.Success();
         }
         catch (DbUpdateException)
         {
-            return CommandResult.Fail("There was an error in assigning the person");
+            // throws when inserted rows == 0, which may mean they're already assigned to the project.
+            return CommandResult.Fail("Error in assigning Person. The Person might not exist or is probably already assigned to the project.");
         }
     }
 
