@@ -136,6 +136,7 @@ ViewData["Title"] = @Model.BasicInfo.Name;
             console.debug("selected option:", $selectedOption.val());
             if ($selectedOption.val() === "0") {
                 openDialogModal("Assign Person", "Please select a person to assign.");
+                return;
             }
             $.post(
                 $form.attr('action'),

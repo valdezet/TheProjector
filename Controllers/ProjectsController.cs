@@ -91,7 +91,7 @@ public class ProjectsController : Controller
         }
         else
         {
-            ModelState.AddModelError(String.Empty, "Error in assigning Person. The Person might not exist or is probably already assigned to the project.");
+            ModelState.AddModelError(String.Empty, result.ErrorMessage);
             return BadRequest(ModelState);
         }
     }
