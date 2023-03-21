@@ -1,6 +1,7 @@
 using TheProjector.Data.DTO;
 using TheProjector.Data.Request;
 using TheProjector.Data.Persistence;
+using TheProjector.Data.Form;
 using Microsoft.EntityFrameworkCore;
 
 namespace TheProjector.Services;
@@ -67,7 +68,7 @@ public class ProjectService
         return await _dbContext.Projects.AnyAsync(project => project.Code == projectCode);
     }
 
-    public async Task<CommandResult> CreateProject(ProjectBasicInfo form)
+    public async Task<CommandResult> CreateProject(ProjectForm form)
     {
         Project newProject = new Project
         {

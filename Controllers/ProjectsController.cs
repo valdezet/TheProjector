@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using TheProjector.Data.DTO;
+using TheProjector.Data.Form;
 using TheProjector.Data.Request;
 using TheProjector.Data.ViewModels;
 using TheProjector.Services;
@@ -59,7 +60,7 @@ public class ProjectsController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(ProjectBasicInfo createForm)
+    public async Task<IActionResult> Create(ProjectForm createForm)
     {
         if (await _service.CheckCodeExistence(createForm.Code))
         {

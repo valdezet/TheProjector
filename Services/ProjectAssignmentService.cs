@@ -56,6 +56,10 @@ public class ProjectAssignmentService
             {
                 return CommandResult.Fail("Project not found.");
             }
+            if (project.IsArchived)
+            {
+                return CommandResult.Fail("Can't assign new people on archived projects.");
+            }
 
             Person? person = await _dbContext.People.FindAsync(pair.PersonId);
             if (person == null)
@@ -89,6 +93,10 @@ public class ProjectAssignmentService
                 .Where(project => project.Id == pair.ProjectId)
                 .Include(project => project.AssignedPeople)
                 .FirstAsync();
+            if (project.IsArchived)
+            {
+                return CommandResult.Fail("Can't unassign people on archived projects.");
+            }
         }
         catch (InvalidOperationException)
         {
