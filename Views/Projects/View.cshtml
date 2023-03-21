@@ -89,6 +89,8 @@ ViewData["Title"] = @Model.BasicInfo.Name;
         var antiForgeryTokenElement = '@Html.AntiForgeryToken()';
 
         var $assignedPeople = $("tbody#assigned-people");
+        var $assignPersonForm = $("form#assign-person");
+        var $assignPersonDropdown = $assignPersonForm.find('select');
 
         function openDialogModal(title, body) {
             let $dialogModal = $("div#dialog-modal");
@@ -97,6 +99,8 @@ ViewData["Title"] = @Model.BasicInfo.Name;
             let $modalBody = $dialogModal.find("#dialog-modal-body");
             $modalBody.html(body);
             $dialogModal.modal("show");
+            // remove focus
+            document.activeElement.blur();
         }
 
         function clearAssignmentErrors() {
@@ -120,20 +124,19 @@ ViewData["Title"] = @Model.BasicInfo.Name;
             $newRow.append($removeTd);
             $assignedPeople.append($newRow);
         }
-
+        
         function addAssignablePersonToDropdown(id, name) {
             let $assignableSelect = $("form#assign-person select");
             let $newOption = $(`<option value=${id}>${name}</option>`);
             $assignableSelect.append($newOption);
         }
 
-        $("form#assign-person").submit(function (e) {
+        // assign person handler
+        $assignPersonForm.submit(function (e) {
             e.preventDefault();
             clearAssignmentErrors();
             let $form = $(e.target);
             let $selectedOption = $form.find("option:selected");
-            console.debug($form);
-            console.debug("selected option:", $selectedOption.val());
             if ($selectedOption.val() === "0") {
                 openDialogModal("Assign Person", "Please select a person to assign.");
                 return;
@@ -147,6 +150,10 @@ ViewData["Title"] = @Model.BasicInfo.Name;
                     $selectedOption.remove();
                     addAssignedPerson(id, name);
                     openDialogModal("Assign Person", `${name} is successfully assigned to the project!`);
+                    // return to "none selected" when list is empty (shows blank instead of "none selected")
+                    if ($assignPersonDropdown.children().length == 1) {
+                        $assignPersonDropdown.prop("selectedIndex", 0);
+                    }
                 }
             ).fail(function (jqXHR, textStatus, errorThrown) {
                 if (jqXHR.status === 400) {
@@ -159,6 +166,7 @@ ViewData["Title"] = @Model.BasicInfo.Name;
             });
         });
 
+        // remove person handler
         $("tbody#assigned-people").on('submit', "form[data-purpose='unassign-person']", function (e) {
             e.preventDefault();
             let $form = $(e.target);
