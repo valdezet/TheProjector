@@ -111,4 +111,21 @@ public class ProjectsController : Controller
             return BadRequest(ModelState);
         }
     }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Archive(long id)
+    {
+        CommandResult result = await _service.ArchiveProject(id);
+        if (result.IsSuccessful)
+        {
+            return NoContent();
+        }
+        else
+        {
+            ModelState.AddModelError(String.Empty, result.ErrorMessage!);
+            return BadRequest(ModelState);
+        }
+
+    }
 }

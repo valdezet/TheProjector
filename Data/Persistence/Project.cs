@@ -21,4 +21,9 @@ public class Project
     public string? Remarks { get; set; }
 
     public ICollection<Person> AssignedPeople { get; set; }
+
+    public DateTime? DateArchivedUtc { get; set; }
+
+    [NotMapped]
+    public bool IsArchived => DateArchivedUtc != null;
 }

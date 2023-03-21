@@ -4,9 +4,16 @@ ViewData["Title"] = @Model.BasicInfo.Name;
 }
 
 <div>
-    <div class="mb-3">
-        <h4>@Model.BasicInfo.Name</h4>
-        <h5 class="text-muted">@Model.BasicInfo.Code</h5>
+    <div class="d-flex justify-content-between">
+        <div class="mb-3">
+            <h4>@Model.BasicInfo.Name</h4>
+            <h5 class="text-muted">@Model.BasicInfo.Code</h5>
+        </div>
+        <div>
+            <form asp-action="Archive" method="POST" id='archive-form'>
+                <input type="submit" value="Mark as Archived" class="btn btn-secondary">
+            </form>
+        </div>
     </div>
 
     <p title="@Model.BasicInfo.Budget" class="mb-3">Budget: @Model.BasicInfo.BudgetShortHand</p>
@@ -124,7 +131,7 @@ ViewData["Title"] = @Model.BasicInfo.Name;
             $newRow.append($removeTd);
             $assignedPeople.append($newRow);
         }
-        
+
         function addAssignablePersonToDropdown(id, name) {
             let $assignableSelect = $("form#assign-person select");
             let $newOption = $(`<option value=${id}>${name}</option>`);
@@ -187,5 +194,22 @@ ViewData["Title"] = @Model.BasicInfo.Name;
             })
         });
 
+        // archive project
+        let $archiveForm = $("form#archive-form");
+        $archiveForm.submit(function (e) {
+            e.preventDefault();
+            $.post(
+                $archiveForm.attr("action"),
+                $archiveForm.serialize(),
+                function () {
+                    openDialogModal("Archive Project", `<p>@Model.BasicInfo.Name is successfully archived!</p> <p>Reloading in 3 seconds.</p>`);
+                    setTimeout(function () {
+                        location.reload();
+                    }, 2 * 1000);
+                }
+            ).fail(function (jqXHR, textStatus, errorThrown) {
+                openDialogModal("Archive Project", jqXHR.responseJSON[""]);
+            })
+        });
     </script>
 }

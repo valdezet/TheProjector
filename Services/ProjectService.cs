@@ -87,4 +87,23 @@ public class ProjectService
             return CommandResult.Fail(DbUpdateException.Message);
         }
     }
+
+    public async Task<CommandResult> ArchiveProject(long projectId)
+    {
+        try
+        {
+            Project? project = await _dbContext.Projects.FindAsync(projectId);
+            if (project == null)
+                return CommandResult.Fail("Project not found.");
+            if (project.IsArchived)
+                return CommandResult.Fail("Project is already archived");
+            project.DateArchivedUtc = DateTime.UtcNow;
+            await _dbContext.SaveChangesAsync();
+            return CommandResult.Success();
+        }
+        catch (DbUpdateException)
+        {
+            return CommandResult.Fail("Error in archiving the project.");
+        }
+    }
 }
