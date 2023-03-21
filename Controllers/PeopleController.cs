@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using TheProjector.Data.DTO.Form;
 using TheProjector.Services;
 using TheProjector.Data.DTO;
 using TheProjector.Data.Request;
@@ -55,7 +54,7 @@ public class PeopleController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(PersonForm form)
+    public async Task<IActionResult> Create(PersonBasicInfo form)
     {
         if (!ModelState.IsValid)
         {

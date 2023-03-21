@@ -1,5 +1,5 @@
 using TheProjector.Data.DTO;
-using TheProjector.Data.DTO.Form;
+
 using TheProjector.Data.Request;
 using TheProjector.Data.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -63,7 +63,7 @@ public class PersonService
         };
     }
 
-    public async Task<CommandResult> CreatePerson(PersonForm form)
+    public async Task<CommandResult> CreatePerson(PersonBasicInfo form)
     {
         try
         {
