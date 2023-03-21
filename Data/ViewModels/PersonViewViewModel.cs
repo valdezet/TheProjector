@@ -7,6 +7,6 @@ public class PersonViewViewModel
     public PersonBasicInfo BasicInfo { get; set; }
 
 
-    // TODO: add info for assigned projects
+    public ICollection<ProjectIdName> AssignedProjects { get; set; }
 
 }

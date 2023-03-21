@@ -13,6 +13,14 @@ public class ProjectAssignmentService
         _dbContext = dbContext;
     }
 
+    public async Task<ICollection<ProjectIdName>> GetProjectsAssignedTo(long personId)
+    {
+        return await _dbContext.People.Where(person => person.Id == personId)
+            .SelectMany(person => person.AssignedProjects)
+            .Select(project => new ProjectIdName { Id = project.Id, Name = project.Name })
+            .ToListAsync();
+    }
+
     // separate method for DRY
     private IQueryable<Person> GetPeopleAssignedToProjectQuery(long projectId)
     {
