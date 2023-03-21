@@ -8,6 +8,14 @@ ViewData["Title"] = @Model.BasicInfo.Name;
         <div class="mb-3">
             <h4>@Model.BasicInfo.Name</h4>
             <h5 class="text-muted">@Model.BasicInfo.Code</h5>
+            @if (Model.BasicInfo.IsArchived)
+            {
+                <h6 class="text-muted">
+                    Archived:&nbsp;
+                    <span data-archived-utc='@Model.BasicInfo.DateArchivedUtc!.Value.ToString("o")'>
+                    </span>
+                </h6>
+            }
         </div>
         <div>
             <form asp-action="Archive" method="POST" id='archive-form'>
@@ -21,51 +29,73 @@ ViewData["Title"] = @Model.BasicInfo.Name;
     <h5>Remarks</h5>
     <p>@(Model.BasicInfo.Remarks ?? "None")</p>
     <hr />
-    <div class="col-mb-2">
-        <h4>Assign People</h4>
-        <form id="assign-person" asp-action="AssignPerson" class="row">
-            <div class="col-sm-10 col-md-11">
-                <select name="PersonId" class="form-select">
-                    <option disabled value="0" selected>None Selected</option>
-                    @if (Model.AssignablePeople != null)
-                    {
-                        @foreach (var person in Model.AssignablePeople)
+    @if (Model.BasicInfo.IsArchived)
+    {
+        <p class="alert alert-info">Can't assign new people on an archived project.</p>
+    }
+    else
+    {
+        <div class="col-mb-2">
+            <h4>Assign People</h4>
+            <form id="assign-person" asp-action="AssignPerson" class="row">
+                <div class="col-sm-10 col-md-11">
+                    <select name="PersonId" class="form-select">
+                        <option disabled value="0" selected>None Selected</option>
+                        @if (Model.AssignablePeople != null)
                         {
-                            <option value="@person.Id">@person.Name</option>
+                            @foreach (var person in Model.AssignablePeople)
+                            {
+                                <option value="@person.Id">@person.Name</option>
+                            }
                         }
-                    }
-                </select>
-            </div>
-            <div class="col-sm-2 col-md-1">
-                <input type="submit" value="Assign" class="btn btn-primary">
-            </div>
-        </form>
-        <div id="person-assignment-errors">
+                    </select>
+                </div>
+                <div class="col-sm-2 col-md-1">
+                    <input type="submit" value="Assign" class="btn btn-primary">
+                </div>
+            </form>
+            <div id="person-assignment-errors">
 
+            </div>
         </div>
-    </div>
+    }
     <div class="col-mb-3">
         <h4>Assigned People</h4>
         <table class="table table-sm">
             <colgroup>
-                <col class="col-11">
-                <col class="col-1">
+                @if (Model.BasicInfo.IsArchived)
+                {
+                    <col class="col-12">
+                }
+                else
+                {
+                    <col class="col-11">
+                    <col class="col-1">
+                }
             </colgroup>
             <thead>
-                <th>Name</th>
-                <th>Actions</th>
+                <tr>
+                    <th>Name</th>
+                    @if (!Model.BasicInfo.IsArchived)
+                    {
+                        <th>Actions</th>
+                    }
+                </tr>
             </thead>
             <tbody id="assigned-people">
                 @foreach (var person in Model.AssignedPeople)
                 {
                     <tr>
                         <td data-purpose="person-name-column">@person.Name</td>
-                        <td>
-                            <form asp-action="UnassignPerson" data-purpose="unassign-person">
-                                <input type="hidden" name="PersonId" value="@person.Id" />
-                                <input type="submit" class="btn btn-danger" value="Unassign" />
-                            </form>
-                        </td>
+                        @if (!Model.BasicInfo.IsArchived)
+                        {
+                            <td>
+                                <form asp-action="UnassignPerson" data-purpose="unassign-person">
+                                    <input type="hidden" name="PersonId" value="@person.Id" />
+                                    <input type="submit" class="btn btn-danger" value="Unassign" />
+                                </form>
+                            </td>
+                        }
                     </tr>
                 }
             </tbody>
@@ -211,5 +241,12 @@ ViewData["Title"] = @Model.BasicInfo.Name;
                 openDialogModal("Archive Project", jqXHR.responseJSON[""]);
             })
         });
+
+        // convert datetime archive
+        var $archiveDateElement = $("span[data-archived-utc]");
+        if ($archiveDateElement) {
+            let timestampedUtc = $archiveDateElement.data("archived-utc") + "Z";
+            $archiveDateElement.html(new Date(timestampedUtc).toLocaleString());
+        }
     </script>
 }

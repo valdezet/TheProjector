@@ -22,7 +22,11 @@ public class ProjectBasicInfo
     [StringLength(2048)]
     public string? Remarks { get; set; }
 
+    public DateTime? DateArchivedUtc { get; set; }
+
     // Computed Properties
+
+    public bool IsArchived => DateArchivedUtc != null;
 
     public string BudgetShortHand => Budget.Shorthand();
 }

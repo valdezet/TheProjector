@@ -57,7 +57,8 @@ public class ProjectService
             Code = project.Code,
             Name = project.Name,
             Budget = project.Budget,
-            Remarks = project.Remarks
+            Remarks = project.Remarks,
+            DateArchivedUtc = project.DateArchivedUtc
         };
     }
 
