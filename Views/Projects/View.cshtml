@@ -33,7 +33,9 @@ ViewData["Title"] = @Model.BasicInfo.Name;
         </div>
     </div>
 
-    <p title="@Model.BasicInfo.Budget" class="mb-3">Budget: @Model.BasicInfo.BudgetShortHand</p>
+    <p title="@Model.BasicInfo.BudgetLocalized" class="mb-3">
+        Budget: @Model.BasicInfo.BudgetShorthand
+    </p>
 
     <h5>Remarks</h5>
     <p>@(Model.BasicInfo.Remarks ?? "None")</p>

@@ -1,5 +1,5 @@
 
-
+using System.Globalization;
 namespace TheProjector.Extensions;
 
 public static class DecimalExtensions
@@ -18,6 +18,11 @@ public static class DecimalExtensions
             iSuffix++;
             value /= 1000;
         }
-        return $"{value:#.####}{suffixes[iSuffix]}";
+        return $"{value.ToString("#.##", CultureInfo.CurrentCulture)}{suffixes[iSuffix]}";
+    }
+
+    public static string Localized(this decimal value)
+    {
+        return $"{value.ToString("#,##.##", CultureInfo.CurrentCulture)}";
     }
 }

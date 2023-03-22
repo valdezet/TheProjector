@@ -17,6 +17,9 @@ public class Project
     [Column(TypeName = "decimal(19,4)")]
     public decimal Budget { get; set; }
 
+    [Column(TypeName = "nchar(3)")]
+    public string BudgetCurrencyCode { get; set; }
+
     [StringLength(2048)]
     public string? Remarks { get; set; }
 

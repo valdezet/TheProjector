@@ -13,6 +13,8 @@ public class ProjectBasicInfo
 
     public decimal Budget { get; set; }
 
+    public string BudgetCurrencyCode { get; set; }
+
     public string? Remarks { get; set; }
 
     public DateTime? DateArchivedUtc { get; set; }
@@ -21,5 +23,7 @@ public class ProjectBasicInfo
 
     public bool IsArchived => DateArchivedUtc != null;
 
-    public string BudgetShortHand => Budget.Shorthand();
+    public string BudgetShorthand => $"{BudgetCurrencyCode} {Budget.Shorthand()}";
+
+    public string BudgetLocalized => $"{BudgetCurrencyCode} {Budget.Localized()}";
 }

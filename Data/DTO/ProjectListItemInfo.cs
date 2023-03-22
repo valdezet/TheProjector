@@ -9,8 +9,12 @@ public class ProjectListItemInfo
 
     public decimal Budget { get; set; }
 
+    public string BudgetCurrencyCode { get; set; }
+
     /* calculated properties */
 
-    public string BudgetShorthand => Budget.Shorthand();
+    public string BudgetShorthand => $"{BudgetCurrencyCode} {Budget.Shorthand()}";
+
+    public string BudgetLocalized => $"{BudgetCurrencyCode} {Budget.Localized()}";
 
 }

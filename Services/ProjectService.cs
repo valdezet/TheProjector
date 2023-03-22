@@ -44,7 +44,7 @@ public class ProjectService
         getProjectsQuery = getProjectsQuery.OrderBy(project => project.Id).Skip(skip).Take(itemsPerPage);
 
         ICollection<ProjectListItemInfo> results = await getProjectsQuery
-            .Select(p => new ProjectListItemInfo { Id = p.Id, Name = p.Name, Budget = p.Budget })
+            .Select(p => new ProjectListItemInfo { Id = p.Id, Name = p.Name, Budget = p.Budget, BudgetCurrencyCode = p.BudgetCurrencyCode })
             .ToListAsync();
 
         return new ProjectSearchCollection
@@ -68,6 +68,7 @@ public class ProjectService
             Code = project.Code,
             Name = project.Name,
             Budget = project.Budget,
+            BudgetCurrencyCode = project.BudgetCurrencyCode,
             Remarks = project.Remarks,
             DateArchivedUtc = project.DateArchivedUtc
         };
