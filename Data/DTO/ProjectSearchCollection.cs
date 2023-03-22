@@ -27,4 +27,6 @@ public class ProjectSearchCollection
 
     // search query
     public string? NameSearch { get; set; }
+
+    public bool Archived { get; set; } = false;
 }

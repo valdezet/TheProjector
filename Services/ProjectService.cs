@@ -27,7 +27,16 @@ public class ProjectService
 
         if (!String.IsNullOrEmpty(nameSearch))
         {
-            getProjectsQuery = getProjectsQuery.Where(c => c.Name.Contains(nameSearch));
+            getProjectsQuery = getProjectsQuery.Where(p => p.Name.Contains(nameSearch));
+        }
+
+        if (query.Archived)
+        {
+            getProjectsQuery = getProjectsQuery.Where(p => p.DateArchivedUtc != null);
+        }
+        else
+        {
+            getProjectsQuery = getProjectsQuery.Where(p => p.DateArchivedUtc == null);
         }
 
         int projectCount = getProjectsQuery.Count();
@@ -44,7 +53,8 @@ public class ProjectService
             CurrentPage = currentPage,
             ItemsPerPage = itemsPerPage,
             TotalCount = projectCount,
-            Collection = results
+            Collection = results,
+            Archived = query.Archived
         };
     }
 

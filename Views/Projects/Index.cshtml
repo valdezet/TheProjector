@@ -1,6 +1,6 @@
 @{
     @model TheProjector.Data.DTO.ProjectSearchCollection;
-    ViewData["Title"] = "Projects";
+ViewData["Title"] = "Projects";
 
     string getURLWithNewQueryString(string key, object? newValue)
     {
@@ -12,9 +12,27 @@
     int[] itemsPerPageSelection = new int[] { 1, 2, 5, 10, 25, 50 };
 }
 
+@functions {
+    string ArchiveActiveMatchClassName(string classes, bool matchIfArchived)
+    {
+        return classes + (matchIfArchived == Model.Archived ? " active" : "");
+    }
+}
+
 <div>
     <div class="mb-3">
         <h3>Projects </h3>
+
+        <div class="btn-group">
+            <a class='@ArchiveActiveMatchClassName("btn btn-secondary", false)' asp-action="Index"
+                asp-route-Archived="false" title="Look for active projects">
+                Active
+            </a>
+            <a class='@ArchiveActiveMatchClassName("btn btn-secondary", true)' asp-action="Index"
+                asp-route-Archived="true" title="Look for archived projects">
+                Archived
+            </a>
+        </div>
         <a class="btn btn-primary" asp-action="Create">
             New Project
         </a>
@@ -23,20 +41,31 @@
 
     <div class="mb-3">
         <form action="" method="GET">
-            <div class="d-flex gap-1">
-                <input type="text" name="Name" class="form-control " />
-                <button type="submit"
-                    class="btn btn-primary material-symbols-outlined d-block flex-shrink-1">search</button>
+            <h4>Search</h4>
+            <div class="d-flex gap-1 mb-1">
+                <div class="flex-grow-1">
+                    <input type="text" name="Name" class="form-control " />
+                    <div class="form-check form-check-inline"
+                        title="Search for Archived Projects instead of Active Projects.">
+                        <input class="form-check-input" type="checkbox" id="archive-search-filter" name="Archived"
+                            value="true" checked="@Model.Archived" />
+                        <label class="form-check-label" for="archive-search-filter">Archived</label>
+                    </div>
+
+                </div>
+                <div>
+                    <button type="submit"
+                        class="btn btn-primary material-symbols-outlined d-block flex-shrink-1">search</button>
+                </div>
             </div>
+            @if (!String.IsNullOrEmpty(Model.NameSearch))
+            {
+                <p>Searching for: @Model.NameSearch <a asp-action="Index">Clear</a></p>
+            }
 
         </form>
-        @if (!String.IsNullOrEmpty(Model.NameSearch))
-        {
-            <p>Searching for: @Model.NameSearch <a asp-action="Index">Clear</a></p>
-
-        }
-
     </div>
+    <hr />
     @if (Model.Collection.Count > 0)
     {
         <div class="d-flex justify-content-between align-items-end">
@@ -88,25 +117,29 @@
         </p>
     }
 
-    <div class="btn-group gap-1 border">
-        <a class="btn btn-secondary" href='@getURLWithNewQueryString("Page", "1")'>
-            First
-        </a>
-        @* page numbers in between *@
-        @for (int i = Model.FirstPageNumberDisplayed; i <= Model.LastPageNumberDisplayed; i++)
-        {
-            string classes = "btn btn-secondary";
-            string urlAction = getURLWithNewQueryString("Page", $"{i}");
-            var routeData = ViewContext.RouteData.Values;
-            if (Model.CurrentPage == i) classes += " active";
-            <a class="@classes" href="@urlAction">
-                @i
+    @if (Model.Collection.Count > 0)
+    {
+        <div class="btn-group gap-1 border">
+            <a class="btn btn-secondary" href='@getURLWithNewQueryString("Page", "1")'>
+                First
             </a>
-        }
-        <a class="btn btn-secondary" href='@getURLWithNewQueryString("Page", Model.TotalPageCount)'>
-            Last (@Model.TotalPageCount)
-        </a>
-    </div>
+            @* page numbers in between *@
+            @for (int i = Model.FirstPageNumberDisplayed; i <= Model.LastPageNumberDisplayed; i++)
+            {
+                string classes = "btn btn-secondary";
+                string urlAction = getURLWithNewQueryString("Page", $"{i}");
+                var routeData = ViewContext.RouteData.Values;
+                if (Model.CurrentPage == i) classes += " active";
+                <a class="@classes" href="@urlAction">
+                    @i
+                </a>
+            }
+            <a class="btn btn-secondary" href='@getURLWithNewQueryString("Page", Model.TotalPageCount)'>
+                Last (@Model.TotalPageCount)
+            </a>
+        </div>
+    }
+
 
 
 
