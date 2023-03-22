@@ -2,6 +2,7 @@ using TheProjector.Data.DTO;
 using TheProjector.Data.Request;
 using TheProjector.Data.Persistence;
 using TheProjector.Data.Form;
+using TheProjector.Extensions;
 using Microsoft.EntityFrameworkCore;
 
 namespace TheProjector.Services;
@@ -18,13 +19,9 @@ public class ProjectService
 
     public async Task<ProjectSearchCollection> SearchProject(ProjectSearchRequest query)
     {
-        int itemsPerPage = query.ItemsPerPage;
-        int currentPage = query.Page;
-        int skip = itemsPerPage * (currentPage - 1);
-        string? nameSearch = query.Name;
 
         IQueryable<Project> getProjectsQuery = _dbContext.Projects;
-
+        string? nameSearch = query.Name;
         if (!String.IsNullOrEmpty(nameSearch))
         {
             getProjectsQuery = getProjectsQuery.Where(p => p.Name.Contains(nameSearch));
@@ -41,11 +38,23 @@ public class ProjectService
 
         int projectCount = getProjectsQuery.Count();
 
+        int itemsPerPage = query.ItemsPerPage;
+        int currentPage = query.Page;
+        int skip = itemsPerPage * (currentPage - 1);
         getProjectsQuery = getProjectsQuery.OrderBy(project => project.Id).Skip(skip).Take(itemsPerPage);
 
         ICollection<ProjectListItemInfo> results = await getProjectsQuery
-            .Select(p => new ProjectListItemInfo { Id = p.Id, Name = p.Name, Budget = p.Budget, BudgetCurrencyCode = p.BudgetCurrencyCode })
+            .Select(p => new ProjectListItemInfo
+            {
+                Id = p.Id,
+                Name = p.Name,
+                BudgetShorthand = $"{p.BudgetCurrencyCode} {p.Budget.Shorthand()}",
+                BudgetLocalized = $"{p.BudgetCurrencyCode} {p.Budget.Localized()}"
+            })
             .ToListAsync();
+
+        int totalPageCount = (int)Math.Ceiling((double)projectCount / itemsPerPage);
+        int pageButtonsShown = 10;
 
         return new ProjectSearchCollection
         {
@@ -54,7 +63,10 @@ public class ProjectService
             ItemsPerPage = itemsPerPage,
             TotalCount = projectCount,
             Collection = results,
-            Archived = query.Archived
+            Archived = query.Archived,
+            TotalPageCount = totalPageCount,
+            FirstPageNumberDisplayed = Math.Max(1, currentPage - (int)((double)pageButtonsShown / 2)),
+            LastPageNumberDisplayed = Math.Min(currentPage + (int)((double)pageButtonsShown / 2), totalPageCount),
         };
     }
 
@@ -67,9 +79,10 @@ public class ProjectService
             Id = project.Id,
             Code = project.Code,
             Name = project.Name,
-            Budget = project.Budget,
-            BudgetCurrencyCode = project.BudgetCurrencyCode,
+            BudgetShorthand = $"{project.BudgetCurrencyCode} {project.Budget.Shorthand()}",
+            BudgetLocalized = $"{project.BudgetCurrencyCode} {project.Budget.Localized()}",
             Remarks = project.Remarks,
+            IsArchived = project.DateArchivedUtc != null,
             DateArchivedUtc = project.DateArchivedUtc
         };
     }

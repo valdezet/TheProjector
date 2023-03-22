@@ -19,11 +19,9 @@ public class ProjectBasicInfo
 
     public DateTime? DateArchivedUtc { get; set; }
 
-    // Computed Properties
+    public bool IsArchived { get; set; }
 
-    public bool IsArchived => DateArchivedUtc != null;
+    public string BudgetShorthand { get; set; }
 
-    public string BudgetShorthand => $"{BudgetCurrencyCode} {Budget.Shorthand()}";
-
-    public string BudgetLocalized => $"{BudgetCurrencyCode} {Budget.Localized()}";
+    public string BudgetLocalized { get; set; }
 }
