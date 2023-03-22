@@ -84,11 +84,6 @@ public class ProjectAssignmentService
         Project project;
         try
         {
-            // I don't know yet if there's a way to remove a person from relationship
-            // without having to make these queries and not using the intermediate table which is to be removed in a future refactor            
-            // https://learn.microsoft.com/en-us/ef/core/saving/related-data#removing-relationships
-            // technical spike if I go with raw SQL (fromSql): input santitaion, updated rows == 0 problem, 
-            // what if the ProjectPersonAssignments table name change when I refactor?
             project = await _dbContext.Projects
                 .Where(project => project.Id == pair.ProjectId)
                 .Include(project => project.AssignedPeople)
