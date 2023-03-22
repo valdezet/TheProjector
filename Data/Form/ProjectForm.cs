@@ -1,5 +1,7 @@
-namespace TheProjector.Data.Form;
 using System.ComponentModel.DataAnnotations;
+using TheProjector.Validation;
+
+namespace TheProjector.Data.Form;
 
 public class ProjectForm
 {
@@ -11,11 +13,15 @@ public class ProjectForm
 
     [StringLength(128)]
     [RegularExpression(@"^[A-Za-z0-9\s-]+[^-\s]$", ErrorMessage = "The Code can only contain letters a-z, numbers, spaces and dashes(-). It should also not end with spaces.")]
+    [DisplayFormat(DataFormatString = "#,##.00")]
     public string Name { get; set; }
 
     [Range(0, 999999999999999.9999)]
-    [RegularExpression(@"^\d{1,15}(\.\d{1,4})?$", ErrorMessage = "The Budget field should be a whole number or have up to at most 4 decimal places.")]
+    [DataType(DataType.Currency)]
     public decimal Budget { get; set; }
+
+    [CurrencyCode]
+    public string BudgetCurrencyCode { get; set; } = System.Globalization.RegionInfo.CurrentRegion.ISOCurrencySymbol;
 
     [StringLength(2048)]
     public string? Remarks { get; set; }

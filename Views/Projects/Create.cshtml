@@ -1,6 +1,14 @@
 @{
+    @using System.Globalization;
     @model TheProjector.Data.Form.ProjectForm;
 
+    var currencyCodes = CultureInfo.GetCultures(CultureTypes.SpecificCultures)
+    .Select(culture => new RegionInfo(culture.Name))
+    .Where(region => region.CurrencyEnglishName != String.Empty)
+    .DistinctBy(region => region.ISOCurrencySymbol) // distinct
+    .OrderBy(region => region.CurrencyEnglishName)
+    .Select(region => new { Name = region.CurrencyEnglishName, Code = region.ISOCurrencySymbol });
+    string defaultCode = RegionInfo.CurrentRegion.ISOCurrencySymbol;
 }
 
 <div>
@@ -26,8 +34,30 @@
 
         <div class=" mb-3">
             <label asp-for="Budget"></label>
-            <input asp-for="Budget" class="form-control" placeholder=" " />
-            <span asp-validation-for="Budget" class="text text-danger"></span>
+            <div class="input-group">
+                <div class="input-group-prepend"
+                    title="The currency is determined from the server&apos;s system settings.">
+                    <span class="input-group-text">
+                        <select asp-for="BudgetCurrencyCode" class="form-select">
+                            @foreach (var currency in currencyCodes)
+                            {
+                                <option value="@currency.Code"
+                                    selected="@(currency.Code == (Model?.BudgetCurrencyCode ?? defaultCode))">
+                                    @currency.Name
+                                    (@currency.Code)
+                                </option>
+                            }
+                        </select>
+                    </span>
+                </div>
+                <input asp-for="Budget" class="form-control" placeholder=" " />
+            </div>
+            <p>
+                <span asp-validation-for="BudgetCurrencyCode" class="text text-danger"></span>
+            </p>
+            <p>
+                <span asp-validation-for="Budget" class="text text-danger"></span>
+            </p>
         </div>
 
         <div class="mb-3">

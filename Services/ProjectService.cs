@@ -85,13 +85,13 @@ public class ProjectService
         {
             Name = form.Name,
             Budget = form.Budget,
+            BudgetCurrencyCode = form.BudgetCurrencyCode,
             Code = form.Code,
             Remarks = form.Remarks
         };
         _dbContext.Add(newProject);
         try
         {
-
             await _dbContext.SaveChangesAsync();
             return CommandResult.Success();
         }
