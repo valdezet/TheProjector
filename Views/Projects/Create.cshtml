@@ -1,69 +1,63 @@
 @{
-    @using System.Globalization;
-    @model TheProjector.Data.Form.ProjectForm;
+    @model TheProjector.Data.ViewModels.ProjectFormViewModel;
 
-    var currencyCodes = CultureInfo.GetCultures(CultureTypes.SpecificCultures)
-    .Select(culture => new RegionInfo(culture.Name))
-    .Where(region => region.CurrencyEnglishName != String.Empty)
-    .DistinctBy(region => region.ISOCurrencySymbol) // distinct
-    .OrderBy(region => region.CurrencyEnglishName)
-    .Select(region => new { Name = region.CurrencyEnglishName, Code = region.ISOCurrencySymbol });
-    string defaultCode = RegionInfo.CurrentRegion.ISOCurrencySymbol;
 }
 
 <div>
 
     <h3>New Project</h3>
+    <div asp-validation-summary="ModelOnly" class="text-danger">
 
+    </div>
     <form method="POST">
         <div class="mb-3">
-            <label asp-for="Code"></label>
-            <input asp-for="Code" class="form-control" placeholder=" " />
+            <label asp-for="Form.Code"></label>
+            <input asp-for="Form.Code" class="form-control" placeholder=" " />
             <label class="form-check-label" for="manually-change-code">Customize Code?</label>
             <input type="checkbox" id="manually-change-code" class="form-check-input">
             <p class="p-0 m-0">
-                <span asp-validation-for="Code" class="text text-danger"></span>
+                <span asp-validation-for="Form.Code" class="text text-danger"></span>
             </p>
         </div>
 
         <div class="mb-3">
-            <label asp-for="Name"></label>
-            <input asp-for="Name" class="form-control" placeholder=" " />
-            <span asp-validation-for="Name" class="text text-danger"></span>
+            <label asp-for="Form.Name"></label>
+            <input asp-for="Form.Name" class="form-control" placeholder=" " />
+            <span asp-validation-for="Form.Name" class="text text-danger"></span>
         </div>
 
         <div class=" mb-3">
-            <label asp-for="Budget"></label>
+            <label asp-for="Form.Budget"></label>
             <div class="input-group">
                 <div class="input-group-prepend"
                     title="The currency is determined from the server&apos;s system settings.">
                     <span class="input-group-text">
-                        <select asp-for="BudgetCurrencyCode" class="form-select">
-                            @foreach (var currency in currencyCodes)
+                        <select asp-for="Form.BudgetCurrencyCode" class="form-select">
+                            @foreach (var currency in Model.Currencies)
                             {
                                 <option value="@currency.Code"
-                                    selected="@(currency.Code == (Model?.BudgetCurrencyCode ?? defaultCode))">
-                                    @currency.Name
+                                    selected="@(currency.Code == (Model.Form.BudgetCurrencyCode))">
+                                    @currency.EnglishName
                                     (@currency.Code)
                                 </option>
                             }
                         </select>
                     </span>
                 </div>
-                <input asp-for="Budget" class="form-control" placeholder=" " />
+                <input asp-for="Form.Budget" class="form-control" placeholder=" " />
             </div>
             <p>
-                <span asp-validation-for="BudgetCurrencyCode" class="text text-danger"></span>
+                <span asp-validation-for="Form.BudgetCurrencyCode" class="text text-danger"></span>
             </p>
             <p>
-                <span asp-validation-for="Budget" class="text text-danger"></span>
+                <span asp-validation-for="Form.Budget" class="text text-danger"></span>
             </p>
         </div>
 
         <div class="mb-3">
-            <label asp-for="Remarks" class="form-label"></label>
-            <textarea class="form-control" asp-for="Remarks" rows="5" placeholder=" "></textarea>
-            <span asp-validation-for="Remarks" class="text text-danger"></span>
+            <label asp-for="Form.Remarks" class="form-label"></label>
+            <textarea class="form-control" asp-for="Form.Remarks" rows="5" placeholder=" "></textarea>
+            <span asp-validation-for="Form.Remarks" class="text text-danger"></span>
         </div>
 
         <input type="submit" class="btn btn-primary" value="Create">
@@ -77,8 +71,8 @@
 
 @section Scripts {
     <script>
-        let codeInputElement = document.querySelector("input[name='Code']");
-        let nameInputElement = document.querySelector("input[name='Name']");
+        let codeInputElement = document.querySelector("input[name='Form.Code']");
+        let nameInputElement = document.querySelector("input[name='Form.Name']");
         let customizeCodeCheckElement = document.querySelector("input#manually-change-code");
         let shouldChangeCodeAutomatically = !customizeCodeCheckElement.checked;
         let nameInputChanged = (event) => {

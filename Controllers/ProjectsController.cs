@@ -12,11 +12,16 @@ public class ProjectsController : Controller
 
     private ProjectService _service;
     private ProjectAssignmentService _assignmentService;
+    private CurrencyService _currencyService;
 
-    public ProjectsController(ProjectService projectService, ProjectAssignmentService projectAssignmentService)
+    public ProjectsController(
+        ProjectService projectService,
+        ProjectAssignmentService projectAssignmentService,
+        CurrencyService currencyService)
     {
         _service = projectService;
         _assignmentService = projectAssignmentService;
+        _currencyService = currencyService;
     }
 
     public async Task<IActionResult> Index(ProjectSearchRequest query)
@@ -53,30 +58,43 @@ public class ProjectsController : Controller
 
     }
 
+    [HttpGet]
     public IActionResult Create()
     {
-        return View();
+        ProjectFormViewModel viewModel = new ProjectFormViewModel
+        {
+            Form = new ProjectForm(),
+            Currencies = _currencyService.GetSupportedCurrencyInfo()
+        };
+        return View(viewModel);
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(ProjectForm createForm)
+    public async Task<IActionResult> Create(ProjectFormViewModel viewModel)
     {
+        ProjectForm createForm = viewModel.Form;
         if (await _service.CheckCodeExistence(createForm.Code))
         {
-            ModelState.AddModelError("Code", "The code is already taken by another project.");
+            ModelState.AddModelError("Form.Code", "The code is already taken by another project.");
         }
 
         if (!ModelState.IsValid)
         {
-            return View(createForm);
+            viewModel.Currencies = _currencyService.GetSupportedCurrencyInfo();
+            return View(viewModel);
         }
         CommandResult result = await _service.CreateProject(createForm);
         if (result.IsSuccessful)
         {
             return RedirectToAction("Index");
         }
-        return NoContent();
+        else
+        {
+            viewModel.Currencies = _currencyService.GetSupportedCurrencyInfo();
+            ModelState.AddModelError(String.Empty, result.ErrorMessage!);
+            return View(viewModel);
+        }
     }
 
     [HttpPost]

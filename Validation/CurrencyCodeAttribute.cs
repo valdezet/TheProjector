@@ -1,4 +1,4 @@
-using System.Globalization;
+using TheProjector.Services;
 using System.ComponentModel.DataAnnotations;
 namespace TheProjector.Validation;
 
@@ -10,7 +10,6 @@ public class CurrencyCodeAttribute : ValidationAttribute
     protected override ValidationResult? IsValid(
         object value, ValidationContext validationContext)
     {
-
         string val = value.ToString()!;
 
         if (val.Length != 3)
@@ -19,9 +18,8 @@ public class CurrencyCodeAttribute : ValidationAttribute
         }
         else
         {
-            bool existingCurrency = CultureInfo.GetCultures(CultureTypes.SpecificCultures)
-                .Select(culture => new RegionInfo(culture.Name))
-                .Any(region => region.ISOCurrencySymbol == val);
+            CurrencyService currencyService = validationContext.GetService<CurrencyService>()!;
+            bool existingCurrency = currencyService.CheckCurrencyCodeSupport(val);
             if (!existingCurrency)
             {
                 return new ValidationResult(GetErrorMessage());

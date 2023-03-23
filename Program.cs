@@ -20,6 +20,7 @@ builder
 builder.Services.AddScoped<TheProjector.Services.ProjectService>();
 builder.Services.AddScoped<TheProjector.Services.PersonService>();
 builder.Services.AddScoped<TheProjector.Services.ProjectAssignmentService>();
+builder.Services.AddScoped<TheProjector.Services.CurrencyService>();
 
 var app = builder.Build();
 
