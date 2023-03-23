@@ -1,18 +1,18 @@
 using System.Globalization;
 using TheProjector.Data.DTO;
 
-namespace TheProjector.Services;
+namespace TheProjector.Utilities;
 
-public class CurrencyService
+public class CurrencyUtilities
 {
-    public bool CheckCurrencyCodeSupport(string currencyCode)
+    public static bool CheckCurrencyCodeSupport(string currencyCode)
     {
         return CultureInfo.GetCultures(CultureTypes.SpecificCultures)
                         .Select(culture => new RegionInfo(culture.Name))
                         .Any(region => region.ISOCurrencySymbol == currencyCode);
     }
 
-    public IEnumerable<CurrencyInfo> GetSupportedCurrencyInfo()
+    public static IEnumerable<CurrencyInfo> GetSupportedCurrencyInfo()
     {
         return CultureInfo.GetCultures(CultureTypes.SpecificCultures)
             .Select(culture => new RegionInfo(culture.Name))

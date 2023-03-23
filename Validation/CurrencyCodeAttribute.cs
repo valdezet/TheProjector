@@ -1,4 +1,4 @@
-using TheProjector.Services;
+using TheProjector.Utilities;
 using System.ComponentModel.DataAnnotations;
 namespace TheProjector.Validation;
 
@@ -18,8 +18,7 @@ public class CurrencyCodeAttribute : ValidationAttribute
         }
         else
         {
-            CurrencyService currencyService = validationContext.GetService<CurrencyService>()!;
-            bool existingCurrency = currencyService.CheckCurrencyCodeSupport(val);
+            bool existingCurrency = CurrencyUtilities.CheckCurrencyCodeSupport(val);
             if (!existingCurrency)
             {
                 return new ValidationResult(GetErrorMessage());

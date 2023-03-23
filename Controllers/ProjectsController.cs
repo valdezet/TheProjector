@@ -3,7 +3,7 @@ using TheProjector.Data.DTO;
 using TheProjector.Data.Form;
 using TheProjector.Data.Request;
 using TheProjector.Data.ViewModels;
-using TheProjector.Services;
+using TheProjector.Utilities;
 
 namespace TheProjector.Controllers;
 
@@ -12,16 +12,13 @@ public class ProjectsController : Controller
 
     private ProjectService _service;
     private ProjectAssignmentService _assignmentService;
-    private CurrencyService _currencyService;
 
     public ProjectsController(
         ProjectService projectService,
-        ProjectAssignmentService projectAssignmentService,
-        CurrencyService currencyService)
+        ProjectAssignmentService projectAssignmentService)
     {
         _service = projectService;
         _assignmentService = projectAssignmentService;
-        _currencyService = currencyService;
     }
 
     public async Task<IActionResult> Index(ProjectSearchRequest query)
@@ -64,7 +61,7 @@ public class ProjectsController : Controller
         ProjectFormViewModel viewModel = new ProjectFormViewModel
         {
             Form = new ProjectForm(),
-            Currencies = _currencyService.GetSupportedCurrencyInfo()
+            Currencies = CurrencyUtilities.GetSupportedCurrencyInfo()
         };
         return View(viewModel);
     }
@@ -81,7 +78,7 @@ public class ProjectsController : Controller
 
         if (!ModelState.IsValid)
         {
-            viewModel.Currencies = _currencyService.GetSupportedCurrencyInfo();
+            viewModel.Currencies = CurrencyUtilities.GetSupportedCurrencyInfo();
             return View(viewModel);
         }
         CommandResult result = await _service.CreateProject(createForm);
@@ -91,7 +88,7 @@ public class ProjectsController : Controller
         }
         else
         {
-            viewModel.Currencies = _currencyService.GetSupportedCurrencyInfo();
+            viewModel.Currencies = CurrencyUtilities.GetSupportedCurrencyInfo();
             ModelState.AddModelError(String.Empty, result.ErrorMessage!);
             return View(viewModel);
         }
