@@ -17,7 +17,10 @@ ViewData["Title"] = @Model.BasicInfo.Name;
                 </h6>
             }
         </div>
-        <div>
+        <div class="d-flex gap-2">
+            <div>
+                <a class="btn btn-primary " asp-action="Edit">Edit</a>
+            </div>
             @if (!Model.BasicInfo.IsArchived)
             {
                 <form asp-action="Archive" method="POST" id='archive-form'>

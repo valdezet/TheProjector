@@ -1,16 +1,19 @@
 @{
     @model TheProjector.Data.ViewModels.ProjectFormViewModel;
+ViewData["Title"] = "Edit Project";
 
 }
 
 <div>
 
-    <h3>New Project</h3>
+    <h3>Edit Project</h3>
     <div asp-validation-summary="ModelOnly" class="text-danger">
 
     </div>
     <form method="POST">
-        <div class="mb-3">
+        <input type="hidden" asp-for="Form.Id"/>
+        <input asp-for="Form.RowVersion" type="hidden" />
+        <div class=" mb-3">
             <label asp-for="Form.Code"></label>
             <input asp-for="Form.Code" class="form-control" placeholder=" " />
             <label class="form-check-label" for="manually-change-code">Customize Code?</label>

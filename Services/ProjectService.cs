@@ -87,9 +87,33 @@ public class ProjectService
         };
     }
 
+    public async Task<ProjectForm?> GetProjectFormInfo(long projectId)
+    {
+        Project? projectInfo = await _dbContext.Projects.FindAsync(projectId);
+        if (projectInfo == null)
+        {
+            return null;
+        }
+        return new ProjectForm
+        {
+            Id = projectInfo.Id,
+            Code = projectInfo.Code,
+            Name = projectInfo.Name,
+            Budget = projectInfo.Budget,
+            BudgetCurrencyCode = projectInfo.BudgetCurrencyCode,
+            Remarks = projectInfo.Remarks,
+            RowVersion = projectInfo.RowVersion
+        };
+    }
+
     public async Task<bool> CheckCodeExistence(string projectCode)
     {
         return await _dbContext.Projects.AnyAsync(project => project.Code == projectCode);
+    }
+
+    public async Task<bool> CheckCodeExistence(string projectCode, long exceptProjectId)
+    {
+        return await _dbContext.Projects.AnyAsync(project => (project.Code == projectCode) && (project.Id != exceptProjectId));
     }
 
     public async Task<CommandResult> CreateProject(ProjectForm form)
@@ -114,6 +138,91 @@ public class ProjectService
         }
     }
 
+    public async Task<CommandResult> EditProject(ProjectForm form)
+    {
+        Project? project = await _dbContext.Projects.FindAsync(form.Id);
+        if (project == null)
+        {
+            return CommandResult.Fail("Project does not exist or has been deleted by another user.");
+        }
+        project.Code = form.Code;
+        project.Name = form.Name;
+        project.Budget = form.Budget;
+        project.BudgetCurrencyCode = form.BudgetCurrencyCode;
+        project.Remarks = form.Remarks;
+        _dbContext.Entry(project).Property("RowVersion").OriginalValue = form.RowVersion;
+
+
+        bool saved = false;
+        while (!saved)
+        {
+            try
+            {
+                await _dbContext.SaveChangesAsync();
+                return CommandResult.Success();
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                var entry = ex.Entries.Single();
+                Dictionary<string, string> concurrencyPropertyErrors = new Dictionary<string, string>();
+                var currentValues = entry.CurrentValues;
+                var databaseValues = entry.GetDatabaseValues();
+                var originalValues = entry.OriginalValues;
+
+                foreach (var property in currentValues.Properties)
+                {
+                    var fieldName = property.Name;
+                    var currentValue = currentValues[property];
+                    var databaseValue = databaseValues[property];
+                    var originalValue = originalValues[property];
+
+                    if (originalValue == null)
+                    {
+                        if (databaseValue == null)
+                        {
+                            currentValues[property] = currentValue;
+                        }
+                        else if (currentValue == null)
+                        {
+                            currentValues[property] = databaseValue;
+                        }
+                    }
+                    else if (originalValue.Equals(databaseValue))
+                    {
+                        currentValues[property] = currentValue;
+                    }
+                    else if (originalValue.Equals(currentValue))
+                    {
+                        currentValues[property] = databaseValue;
+                    }
+                    else if (fieldName == "RowVersion")
+                    {
+                        // ignore rowversion change.
+                        currentValues[property] = currentValue;
+                    }
+                    else
+                    {
+                        concurrencyPropertyErrors[$"Form.{fieldName}"] = $"The {fieldName} field is also changed by another user.";
+                    }
+                }
+
+                if (concurrencyPropertyErrors.Count > 0)
+                {
+                    return CommandResult.Fail(
+                        "Some fields you changed have also been changed by another user. Please reload the page and make the changes again.",
+                        concurrencyPropertyErrors);
+                }
+                // Refresh original values to bypass next concurrency check
+                entry.OriginalValues.SetValues(databaseValues);
+
+            }
+            catch (DbUpdateException)
+            {
+                return CommandResult.Fail("There was an error in updating the Project.");
+            }
+        }
+        return CommandResult.Success();
+    }
     public async Task<CommandResult> ArchiveProject(long projectId)
     {
         try

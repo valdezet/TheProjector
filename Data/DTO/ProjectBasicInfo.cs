@@ -11,6 +11,10 @@ public class ProjectBasicInfo
 
     public string Name { get; set; }
 
+    public decimal Budget { get; set; }
+
+    public string BudgetCurrencyCode { get; set; }
+
     public string? Remarks { get; set; }
 
     public DateTime? DateArchivedUtc { get; set; }

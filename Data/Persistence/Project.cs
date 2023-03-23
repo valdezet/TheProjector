@@ -27,6 +27,9 @@ public class Project
 
     public DateTime? DateArchivedUtc { get; set; }
 
+    [Timestamp]
+    public byte[] RowVersion { get; set; }
+
     [NotMapped]
     public bool IsArchived => DateArchivedUtc != null;
 }

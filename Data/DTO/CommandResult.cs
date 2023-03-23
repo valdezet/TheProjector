@@ -6,7 +6,7 @@ public class CommandResult
 
     public string? ErrorMessage { get; private set; }
 
-    public Object? Data { get; set; }
+    public Dictionary<string, string>? Errors { get; set; }
 
     public static CommandResult Success()
     {
@@ -16,21 +16,22 @@ public class CommandResult
         };
     }
 
-    public static CommandResult Success(object data)
-    {
-        return new CommandResult
-        {
-            IsSuccessful = true,
-            Data = data
-        };
-    }
-
     public static CommandResult Fail(string errorMessage)
     {
         return new CommandResult
         {
             IsSuccessful = false,
             ErrorMessage = errorMessage
+        };
+    }
+
+    public static CommandResult Fail(string errorMessage, Dictionary<string, string> errors)
+    {
+        return new CommandResult
+        {
+            IsSuccessful = false,
+            ErrorMessage = errorMessage,
+            Errors = errors
         };
     }
 

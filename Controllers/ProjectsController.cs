@@ -94,6 +94,57 @@ public class ProjectsController : Controller
         }
     }
 
+    [HttpGet]
+    public async Task<IActionResult> Edit(long id)
+    {
+        ProjectForm? form = await _service.GetProjectFormInfo(id);
+        if (form == null)
+        {
+            return NotFound();
+        }
+        ProjectFormViewModel viewModel = new ProjectFormViewModel
+        {
+            Form = form!,
+            Currencies = CurrencyUtilities.GetSupportedCurrencyInfo()
+        };
+        return View(viewModel);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(ProjectFormViewModel viewModel)
+    {
+        ProjectForm editForm = viewModel.Form;
+        if (await _service.CheckCodeExistence(editForm.Code, editForm.Id))
+        {
+            ModelState.AddModelError("Form.Code", "The code is already taken by another project.");
+        }
+
+        if (!ModelState.IsValid)
+        {
+            viewModel.Currencies = CurrencyUtilities.GetSupportedCurrencyInfo();
+            return View(viewModel);
+        }
+        CommandResult result = await _service.EditProject(editForm);
+        if (result.IsSuccessful)
+        {
+            return RedirectToAction("View", new { id = editForm.Id });
+        }
+        else
+        {
+            viewModel.Currencies = CurrencyUtilities.GetSupportedCurrencyInfo();
+            ModelState.AddModelError(String.Empty, result.ErrorMessage!);
+            if (result.Errors != null)
+            {
+                foreach (KeyValuePair<string, string> error in result.Errors)
+                {
+                    ModelState.AddModelError(error.Key, error.Value);
+                }
+            }
+            return View(viewModel);
+        }
+    }
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     [Route("/[controller]/{projectId:long}/[action]")]

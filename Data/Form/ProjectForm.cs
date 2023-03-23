@@ -18,9 +18,12 @@ public class ProjectForm
     [Range(0, 999999999999999, ErrorMessage = "The {0} value  must be between {1:#,##.####} and {2:#,##.####}.")]
     public decimal Budget { get; set; }
 
+
     [CurrencyCode]
     public string BudgetCurrencyCode { get; set; } = System.Globalization.RegionInfo.CurrentRegion.ISOCurrencySymbol;
 
     [StringLength(2048)]
     public string? Remarks { get; set; }
+
+    public byte[]? RowVersion { get; set; }
 }
