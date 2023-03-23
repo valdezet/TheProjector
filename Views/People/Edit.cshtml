@@ -1,14 +1,18 @@
 @{
     @model TheProjector.Data.DTO.PersonBasicInfo;
-ViewData["Title"] = "New Person";
+ViewData["Title"] = "Edit Person";
 
 }
 
 <div>
 
-    <h3>New Person</h3>
+    <h3>Edit Person</h3>
+    <div asp-validation-summary="ModelOnly" class="text-danger">
+
+    </div>
 
     <form method="POST">
+        <input asp-for="RowVersion" type="hidden" />
         <div class="mb-3">
             <label asp-for="FirstName"></label>
             <input asp-for="FirstName" class="form-control" placeholder=" " />
@@ -25,7 +29,10 @@ ViewData["Title"] = "New Person";
             </p>
         </div>
 
-        <input type="submit" class="btn btn-primary" value="Create">
+
+        @* TODO: implement Username password *@
+
+        <input type="submit" class="btn btn-primary" value="Edit">
 
 
     </form>

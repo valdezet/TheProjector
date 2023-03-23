@@ -16,6 +16,9 @@ public class Person
 
     public ICollection<Project> AssignedProjects { get; set; }
 
+    [Timestamp]
+    public byte[] RowVersion { get; set; }
+
     /* calculated properties */
 
     public string FullName => FirstName + " " + LastName;

@@ -4,38 +4,37 @@ ViewData["Title"] = @Model.BasicInfo.FullName;
 }
 
 <div>
-    <div class="mb-3">
+    <div class="mb-3 d-flex justify-content-between">
         <h4>@Model.BasicInfo.FullName</h4>
-    </div>
-
-
-
-    <div class="row">
-        <div class="col-md-2">
-            <p>Projects assigned to:</p>
+        <div>
+            <a class="btn btn-primary" asp-action="Edit">Edit</a>
         </div>
-        <table class="table table-sm">
-            <colgroup>
-                <col class="col-11">
-                <col class="col-1">
-            </colgroup>
-            <thead>
-                <th>Project</th>
-                <th>Actions</th>
-            </thead>
-            <tbody>
-                @foreach (var project in Model.AssignedProjects)
-                {
-                    <tr>
-                        <td>@project.Name</td>
-                        <td>
-                            <a asp-action="View" asp-controller="Projects" asp-route-id="@project.Id">
-                                View
-                            </a>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
     </div>
+
+
+
+    <p>Projects assigned to:</p>
+    <table class="table table-sm">
+        <colgroup>
+            <col class="col-11">
+            <col class="col-1">
+        </colgroup>
+        <thead>
+            <th>Project</th>
+            <th>Actions</th>
+        </thead>
+        <tbody>
+            @foreach (var project in Model.AssignedProjects)
+            {
+                <tr>
+                    <td>@project.Name</td>
+                    <td>
+                        <a asp-action="View" asp-controller="Projects" asp-route-id="@project.Id">
+                            View
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 </div>

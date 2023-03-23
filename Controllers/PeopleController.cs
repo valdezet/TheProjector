@@ -72,5 +72,38 @@ public class PeopleController : Controller
         return RedirectToAction("Index");
     }
 
+    [HttpGet]
+    public async Task<IActionResult> Edit(long id)
+    {
+        PersonBasicInfo form = await _service.GetPersonBasicInfo(id);
+        return View(form);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Edit(PersonBasicInfo form)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View(form);
+        }
+        CommandResult result = await _service.EditPerson(form);
+        if (result.IsSuccessful)
+        {
+            return RedirectToAction("View", new { id = form.Id });
+        }
+        else
+        {
+            ModelState.AddModelError(String.Empty, result.ErrorMessage!);
+            if (result.Errors != null)
+            {
+                foreach (KeyValuePair<string, string> error in result.Errors)
+                {
+                    ModelState.AddModelError(error.Key, error.Value);
+                }
+            }
+            return View(form);
+        }
+    }
+
 
 }

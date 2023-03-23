@@ -145,6 +145,10 @@ public class ProjectService
         {
             return CommandResult.Fail("Project does not exist or has been deleted by another user.");
         }
+        if (project.IsArchived)
+        {
+            return CommandResult.Fail("Can not update archived projects.");
+        }
         project.Code = form.Code;
         project.Name = form.Name;
         project.Budget = form.Budget;

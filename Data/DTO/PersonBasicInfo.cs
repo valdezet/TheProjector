@@ -18,6 +18,8 @@ public class PersonBasicInfo
     [Display(Name = "Last Name")]
     public string? LastName { get; set; }
 
+    public byte[]? RowVersion { get; set; }
+
     /* computed properties, do not handle in CRUD. */
 
     public string FullName => FirstName + " " + LastName;

@@ -59,7 +59,8 @@ public class PersonService
         {
             Id = person.Id,
             FirstName = person.FirstName,
-            LastName = person.LastName
+            LastName = person.LastName,
+            RowVersion = person.RowVersion
         };
     }
 
@@ -77,6 +78,68 @@ public class PersonService
             return CommandResult.Success();
         }
         catch (Exception)
+        {
+            return CommandResult.Fail("There was an error in inserting to database.");
+        }
+    }
+
+    public async Task<CommandResult> EditPerson(PersonBasicInfo form)
+    {
+        try
+        {
+            Person? person = await _dbContext.People.FindAsync(form.Id);
+            if (person == null)
+            {
+                return CommandResult.Fail("Person not found.");
+            }
+            person.FirstName = form.FirstName;
+            person.LastName = form.LastName;
+            _dbContext.Entry(person).OriginalValues["RowVersion"] = form.RowVersion!;
+            await _dbContext.SaveChangesAsync();
+            return CommandResult.Success();
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            var entry = ex.Entries.Single();
+            Dictionary<string, string> concurrencyPropertyErrors = new Dictionary<string, string>();
+            var currentValues = entry.CurrentValues;
+            var databaseValues = entry.GetDatabaseValues();
+            var originalValues = entry.OriginalValues;
+
+
+            foreach (var property in currentValues.Properties)
+            {
+                var fieldName = property.Name;
+                var currentValue = currentValues[property];
+                var databaseValue = databaseValues[property];
+
+                if (databaseValue == null)
+                {
+                    return CommandResult.Fail("The person's records has been deleted.");
+                }
+
+                if (currentValue == null)
+                {
+                    if (databaseValue != null)
+                    {
+                        concurrencyPropertyErrors.Add(
+                            $"fieldName",
+                             $"The {fieldName} field value is different from the current data.");
+                    }
+                }
+                else if (!currentValue.Equals(databaseValue))
+                {
+                    concurrencyPropertyErrors.Add(
+                        fieldName,
+                        $"The {fieldName} field value is different from the current data."
+                    );
+                }
+            }
+            return CommandResult.Fail(
+                "This project has also been recently changed by another user. Please reload the page and make the changes again.",
+                concurrencyPropertyErrors);
+        }
+        catch (DbUpdateException)
         {
             return CommandResult.Fail("There was an error in inserting to database.");
         }
