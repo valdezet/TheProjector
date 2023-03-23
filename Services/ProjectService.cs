@@ -183,19 +183,20 @@ public class ProjectService
                     {
                         concurrencyPropertyErrors.Add(
                             $"Form.{fieldName}",
-                             $"The {fieldName} field value is different from the current data.");
+                            $"The {fieldName} field value does not match with stored data."
+                        );
                     }
                 }
                 else if (!currentValue.Equals(databaseValue))
                 {
                     concurrencyPropertyErrors.Add(
                         $"Form.{fieldName}",
-                        $"The {fieldName} field value is different from the current data."
+                        $"The {fieldName} field value does not match with stored data."
                     );
                 }
             }
             return CommandResult.Fail(
-                "This project has also been recently changed by another user. Please reload the page and make the changes again.",
+                "This project has been recently changed by another user. Please reload the page and make the changes again.",
                 concurrencyPropertyErrors);
         }
         catch (DbUpdateException)
