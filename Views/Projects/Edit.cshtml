@@ -11,7 +11,7 @@ ViewData["Title"] = "Edit Project";
 
     </div>
     <form method="POST">
-        <input type="hidden" asp-for="Form.Id"/>
+        <input type="hidden" asp-for="Form.Id" />
         <input asp-for="Form.RowVersion" type="hidden" />
         <div class=" mb-3">
             <label asp-for="Form.Code"></label>
@@ -62,7 +62,7 @@ ViewData["Title"] = "Edit Project";
             <span asp-validation-for="Form.Remarks" class="text text-danger"></span>
         </div>
 
-        <input type="submit" class="btn btn-primary" value="Create">
+        <input type="submit" class="btn btn-primary" value="Edit">
 
 
     </form>

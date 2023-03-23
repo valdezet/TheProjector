@@ -150,78 +150,55 @@ public class ProjectService
         project.Budget = form.Budget;
         project.BudgetCurrencyCode = form.BudgetCurrencyCode;
         project.Remarks = form.Remarks;
-        _dbContext.Entry(project).Property("RowVersion").OriginalValue = form.RowVersion;
+
+        _dbContext.Entry(project).OriginalValues["RowVersion"] = form.RowVersion!;
 
 
-        bool saved = false;
-        while (!saved)
+        try
         {
-            try
-            {
-                await _dbContext.SaveChangesAsync();
-                return CommandResult.Success();
-            }
-            catch (DbUpdateConcurrencyException ex)
-            {
-                var entry = ex.Entries.Single();
-                Dictionary<string, string> concurrencyPropertyErrors = new Dictionary<string, string>();
-                var currentValues = entry.CurrentValues;
-                var databaseValues = entry.GetDatabaseValues();
-                var originalValues = entry.OriginalValues;
-
-                foreach (var property in currentValues.Properties)
-                {
-                    var fieldName = property.Name;
-                    var currentValue = currentValues[property];
-                    var databaseValue = databaseValues[property];
-                    var originalValue = originalValues[property];
-
-                    if (originalValue == null)
-                    {
-                        if (databaseValue == null)
-                        {
-                            currentValues[property] = currentValue;
-                        }
-                        else if (currentValue == null)
-                        {
-                            currentValues[property] = databaseValue;
-                        }
-                    }
-                    else if (originalValue.Equals(databaseValue))
-                    {
-                        currentValues[property] = currentValue;
-                    }
-                    else if (originalValue.Equals(currentValue))
-                    {
-                        currentValues[property] = databaseValue;
-                    }
-                    else if (fieldName == "RowVersion")
-                    {
-                        // ignore rowversion change.
-                        currentValues[property] = currentValue;
-                    }
-                    else
-                    {
-                        concurrencyPropertyErrors[$"Form.{fieldName}"] = $"The {fieldName} field is also changed by another user.";
-                    }
-                }
-
-                if (concurrencyPropertyErrors.Count > 0)
-                {
-                    return CommandResult.Fail(
-                        "Some fields you changed have also been changed by another user. Please reload the page and make the changes again.",
-                        concurrencyPropertyErrors);
-                }
-                // Refresh original values to bypass next concurrency check
-                entry.OriginalValues.SetValues(databaseValues);
-
-            }
-            catch (DbUpdateException)
-            {
-                return CommandResult.Fail("There was an error in updating the Project.");
-            }
+            await _dbContext.SaveChangesAsync();
+            return CommandResult.Success();
         }
-        return CommandResult.Success();
+        catch (DbUpdateConcurrencyException ex)
+        {
+            var entry = ex.Entries.Single();
+            Dictionary<string, string> concurrencyPropertyErrors = new Dictionary<string, string>();
+            var currentValues = entry.CurrentValues;
+            var databaseValues = entry.GetDatabaseValues();
+            var originalValues = entry.OriginalValues;
+
+            foreach (var property in currentValues.Properties)
+            {
+                var fieldName = property.Name;
+                var currentValue = currentValues[property];
+                var databaseValue = databaseValues[property];
+
+                if (currentValue == null)
+                {
+                    if (databaseValue != null)
+                    {
+                        concurrencyPropertyErrors.Add(
+                            $"Form.{fieldName}",
+                             $"The {fieldName} field value is different from the current data.");
+                    }
+                }
+                else if (!currentValue.Equals(databaseValue))
+                {
+                    concurrencyPropertyErrors.Add(
+                        $"Form.{fieldName}",
+                        $"The {fieldName} field value is different from the current data."
+                    );
+                }
+            }
+            return CommandResult.Fail(
+                "This project has also been recently changed by another user. Please reload the page and make the changes again.",
+                concurrencyPropertyErrors);
+        }
+        catch (DbUpdateException)
+        {
+            return CommandResult.Fail("There was an error in updating the Project.");
+        }
+
     }
     public async Task<CommandResult> ArchiveProject(long projectId)
     {
