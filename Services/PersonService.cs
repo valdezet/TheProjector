@@ -104,7 +104,7 @@ public class PersonService
             Dictionary<string, string> concurrencyPropertyErrors = new Dictionary<string, string>();
             var currentValues = entry.CurrentValues;
             var databaseValues = entry.GetDatabaseValues();
-            var originalValues = entry.OriginalValues;
+
 
 
             foreach (var property in currentValues.Properties)
@@ -115,7 +115,7 @@ public class PersonService
 
                 if (databaseValue == null)
                 {
-                    return CommandResult.Fail("The person's records has been deleted.");
+                    return CommandResult.Fail("The person's records has been deleted by another user.");
                 }
 
                 if (currentValue == null)
@@ -123,8 +123,8 @@ public class PersonService
                     if (databaseValue != null)
                     {
                         concurrencyPropertyErrors.Add(
-                            $"fieldName",
-                            $"The {fieldName} field value does not match with stored data."
+                            fieldName,
+                            $"The {fieldName} field value and the stored data do not match."
                         );
                     }
                 }
@@ -132,7 +132,7 @@ public class PersonService
                 {
                     concurrencyPropertyErrors.Add(
                         fieldName,
-                        $"The {fieldName} field value does not match with stored data."
+                        $"The {fieldName} field value and the stored data do not match."
                     );
                 }
             }

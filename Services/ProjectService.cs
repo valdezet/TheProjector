@@ -169,7 +169,6 @@ public class ProjectService
             Dictionary<string, string> concurrencyPropertyErrors = new Dictionary<string, string>();
             var currentValues = entry.CurrentValues;
             var databaseValues = entry.GetDatabaseValues();
-            var originalValues = entry.OriginalValues;
 
             foreach (var property in currentValues.Properties)
             {
@@ -177,21 +176,26 @@ public class ProjectService
                 var currentValue = currentValues[property];
                 var databaseValue = databaseValues[property];
 
+                if (databaseValue == null)
+                {
+                    return CommandResult.Fail("The project has been deleted by another user.");
+                }
+
                 if (currentValue == null)
                 {
                     if (databaseValue != null)
                     {
                         concurrencyPropertyErrors.Add(
-                            $"Form.{fieldName}",
-                            $"The {fieldName} field value does not match with stored data."
+                            fieldName,
+                            $"The {fieldName} field value and the stored data do not match."
                         );
                     }
                 }
                 else if (!currentValue.Equals(databaseValue))
                 {
                     concurrencyPropertyErrors.Add(
-                        $"Form.{fieldName}",
-                        $"The {fieldName} field value does not match with stored data."
+                        fieldName,
+                        $"The {fieldName} field value and the stored data do not match."
                     );
                 }
             }
