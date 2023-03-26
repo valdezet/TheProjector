@@ -5,7 +5,7 @@ using TheProjector.Data.Form;
 using TheProjector.Extensions;
 using Microsoft.EntityFrameworkCore;
 
-namespace TheProjector.Utilities;
+namespace TheProjector.Services;
 
 public class ProjectService
 {

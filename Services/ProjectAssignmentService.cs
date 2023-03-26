@@ -3,7 +3,7 @@ using TheProjector.Data.Request;
 using TheProjector.Data.Persistence;
 using Microsoft.EntityFrameworkCore;
 
-namespace TheProjector.Utilities;
+namespace TheProjector.Services;
 
 public class ProjectAssignmentService
 {
