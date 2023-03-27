@@ -8,8 +8,12 @@ public class CurrencyCodeAttribute : ValidationAttribute
     public string GetErrorMessage() => "The currency provided is either not valid or not supported.";
 
     protected override ValidationResult? IsValid(
-        object value, ValidationContext validationContext)
+        object? value, ValidationContext validationContext)
     {
+        if (value == null)
+        {
+            return new ValidationResult(GetErrorMessage());
+        }
         string val = value.ToString()!;
 
         if (val.Length != 3)

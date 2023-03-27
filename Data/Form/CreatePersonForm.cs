@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using TheProjector.Validation;
 
 namespace TheProjector.Data.Form;
 
@@ -18,6 +19,7 @@ public class CreatePersonForm
 
     [EmailAddress]
     [StringLength(200, MinimumLength = 5)]
+    [UniqueUserEmail]
     public string Email { get; set; }
 
 
