@@ -14,27 +14,36 @@ ViewData["Title"] = @Model.BasicInfo.FullName;
 
 
     <p>Projects assigned to:</p>
-    <table class="table table-sm">
-        <colgroup>
-            <col class="col-11">
-            <col class="col-1">
-        </colgroup>
-        <thead>
-            <th>Project</th>
-            <th>Actions</th>
-        </thead>
-        <tbody>
-            @foreach (var project in Model.AssignedProjects)
-            {
-                <tr>
-                    <td>@project.Name</td>
-                    <td>
-                        <a asp-action="View" asp-controller="Projects" asp-route-id="@project.Id">
-                            View
-                        </a>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    @if (Model.AssignedProjects.Count > 0)
+    {
+        <table class="table table-sm">
+            <colgroup>
+                <col class="col-11">
+                <col class="col-1">
+            </colgroup>
+            <thead>
+                <th>Project</th>
+                <th>Actions</th>
+            </thead>
+            <tbody>
+                @foreach (var project in Model.AssignedProjects)
+                {
+                    <tr>
+                        <td>@project.Name</td>
+                        <td>
+                            <a asp-action="View" asp-controller="Projects" asp-route-id="@project.Id">
+                                View
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p class=" alert alert-info">
+            This person is not assigned to any project.
+        </p>
+    }
 </div>

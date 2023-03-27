@@ -75,7 +75,7 @@ ViewData["Title"] = @Model.BasicInfo.Name;
     }
     <div class="col-mb-3">
         <h4>Assigned People</h4>
-        <table class="table table-sm">
+        <table class="table table-sm" id="assigned-people-table">
             <colgroup>
                 @if (Model.BasicInfo.IsArchived)
                 {
@@ -114,6 +114,9 @@ ViewData["Title"] = @Model.BasicInfo.Name;
                 }
             </tbody>
         </table>
+        <p id="no-people-assigned-view" class="d-none alert alert-info">
+            No person is assigned on this project.
+        </p>
     </div>
 </div>
 
@@ -139,6 +142,8 @@ ViewData["Title"] = @Model.BasicInfo.Name;
         var unassignPersonAction = '@Url.Action("UnassignPerson")';
         var antiForgeryTokenElement = '@Html.AntiForgeryToken()';
 
+        var $assignedPeopleTable = $("table#assigned-people-table");
+        var $noneAssignedElement = $("#no-people-assigned-view");
         var $assignedPeople = $("tbody#assigned-people");
         var $assignPersonForm = $("form#assign-person");
         var $assignPersonDropdown = $assignPersonForm.find('select');
@@ -176,6 +181,16 @@ ViewData["Title"] = @Model.BasicInfo.Name;
             $assignedPeople.append($newRow);
         }
 
+        function determineAssignedPeopleView() {
+            if ($assignedPeople.children().length > 0) {
+                $noneAssignedElement.addClass("d-none");
+                $assignedPeopleTable.removeClass("d-none");
+            } else {
+                $noneAssignedElement.removeClass("d-none");
+                $assignedPeopleTable.addClass("d-none");
+            }
+        }
+
         function addAssignablePersonToDropdown(id, name) {
             let $assignableSelect = $("form#assign-person select");
             let $newOption = $(`<option value=${id}>${name}</option>`);
@@ -200,6 +215,7 @@ ViewData["Title"] = @Model.BasicInfo.Name;
                     let id = $selectedOption.val();
                     $selectedOption.remove();
                     addAssignedPerson(id, name);
+                    determineAssignedPeopleView();
                     openDialogModal("Assign Person", `${name} is successfully assigned to the project!`);
                     // return to "none selected" when list is empty (shows blank instead of "none selected")
                     if ($assignPersonDropdown.children().length == 1) {
@@ -231,6 +247,7 @@ ViewData["Title"] = @Model.BasicInfo.Name;
                     let idToRemove = $form.find("input[name='PersonId']").val();
                     addAssignablePersonToDropdown(idToRemove, nameToRemove);
                     $form.closest("tr").remove();
+                    determineAssignedPeopleView();
                     openDialogModal("Unassign Person", `${nameToRemove} has been successfully unassigned from the project!`);
                 }
             ).fail(function (jqXHR, textStatus, errorThrown) {
@@ -282,5 +299,10 @@ ViewData["Title"] = @Model.BasicInfo.Name;
                 });
             });
         }
+
+
+        $(function () {
+            determineAssignedPeopleView();
+        })
     </script>
 }
