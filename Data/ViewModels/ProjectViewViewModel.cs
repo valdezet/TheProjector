@@ -10,6 +10,6 @@ public class ProjectViewViewModel
     // TODO: add info for assigned people, assignable
     public ICollection<PersonListItemInfo> AssignablePeople { get; set; }
 
-    public ICollection<PersonListItemInfo> AssignedPeople { get; set; } = new List<PersonListItemInfo>();
+    public PersonSearchCollection AssignedPeople { get; set; }
 
 }

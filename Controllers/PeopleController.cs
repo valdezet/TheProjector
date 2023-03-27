@@ -27,27 +27,32 @@ public class PeopleController : Controller
     public async Task<IActionResult> Index(PersonSearchRequest query)
     {
         PersonSearchCollection results = await _service.SearchPeople(query);
-        if (results.CurrentPage > results.TotalPageCount)
+        if (results.CurrentPage > results.TotalPageCount && results.TotalPageCount > 0)
         {
             query.Page = 1;
             return RedirectToAction("Index", query);
         }
+
         return View(results);
     }
 
-    public async Task<IActionResult> View(long id)
+    public async Task<IActionResult> View([FromRoute] long id, [FromQuery] ProjectSearchRequest query)
     {
         try
         {
             PersonBasicInfo personInfo = await _service.GetPersonBasicInfo(id);
-            ICollection<ProjectIdName> assignedProjects = await _assignmentService.GetProjectsAssignedTo(id);
-
+            ProjectSearchCollection<ProjectIdName> assignedProjects = await _assignmentService.GetProjectsAssignedTo(id, query);
 
             PersonViewViewModel viewModel = new PersonViewViewModel
             {
                 BasicInfo = personInfo,
                 AssignedProjects = assignedProjects
             };
+            if (viewModel.AssignedProjects.CurrentPage > viewModel.AssignedProjects.TotalPageCount && viewModel.AssignedProjects.TotalPageCount > 0)
+            {
+                query.Page = 1;
+                return RedirectToAction("View", query);
+            }
             return View(viewModel);
         }
         catch (Exception e) when (e is ArgumentNullException || e is InvalidOperationException)

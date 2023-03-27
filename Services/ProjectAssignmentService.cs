@@ -13,12 +13,56 @@ public class ProjectAssignmentService
         _dbContext = dbContext;
     }
 
-    public async Task<ICollection<ProjectIdName>> GetProjectsAssignedTo(long personId)
+    public async Task<ProjectSearchCollection<ProjectIdName>> GetProjectsAssignedTo(long personId, ProjectSearchRequest query)
     {
-        return await _dbContext.People.Where(person => person.Id == personId)
-            .SelectMany(person => person.AssignedProjects)
-            .Select(project => new ProjectIdName { Id = project.Id, Name = project.Name })
+        IQueryable<Project> getProjectsQuery = _dbContext.People.Where(person => person.Id == personId).SelectMany(person => person.AssignedProjects);
+        string? nameSearch = query.Name;
+        if (!String.IsNullOrEmpty(nameSearch))
+        {
+            getProjectsQuery = getProjectsQuery.Where(p => p.Name.Contains(nameSearch));
+        }
+
+        if (query.Archived)
+        {
+            getProjectsQuery = getProjectsQuery.Where(p => p.DateArchivedUtc != null);
+        }
+        else
+        {
+            getProjectsQuery = getProjectsQuery.Where(p => p.DateArchivedUtc == null);
+        }
+
+        int projectCount = getProjectsQuery.Count();
+
+        int itemsPerPage = query.ItemsPerPage;
+        int currentPage = query.Page;
+        int skip = itemsPerPage * (currentPage - 1);
+        getProjectsQuery = getProjectsQuery.OrderBy(project => project.Id).Skip(skip).Take(itemsPerPage);
+
+        ICollection<ProjectIdName> results = await getProjectsQuery
+            .Select(p => new ProjectIdName
+            {
+                Id = p.Id,
+                Name = p.Name,
+            })
             .ToListAsync();
+
+        int totalPageCount = (int)Math.Ceiling((double)projectCount / itemsPerPage);
+        int pageButtonsShown = 10;
+        int firstPageNumberDisplayed = Math.Max(1, currentPage - (int)((double)pageButtonsShown / 2));
+        int lastPageNumberDisplayed = Math.Min(currentPage + (int)((double)pageButtonsShown / 2), totalPageCount);
+
+        return new ProjectSearchCollection<ProjectIdName>
+        {
+            NameSearch = nameSearch,
+            CurrentPage = currentPage,
+            ItemsPerPage = itemsPerPage,
+            TotalCount = projectCount,
+            Collection = results,
+            Archived = query.Archived,
+            TotalPageCount = totalPageCount,
+            FirstPageNumberDisplayed = firstPageNumberDisplayed,
+            LastPageNumberDisplayed = lastPageNumberDisplayed
+        };
     }
 
     // separate method for DRY
@@ -39,12 +83,45 @@ public class ProjectAssignmentService
         return people;
     }
 
-    public async Task<ICollection<PersonListItemInfo>> GetAssignedPeople(long projectId)
+    public async Task<PersonSearchCollection> GetAssignedPeople(long projectId, PersonSearchRequest query)
     {
-        ICollection<PersonListItemInfo> people = await GetPeopleAssignedToProjectQuery(projectId)
-            .Select(assigned => new PersonListItemInfo { Id = assigned.Id, Name = assigned.FullName })
+
+        int itemsPerPage = query.ItemsPerPage;
+        int currentPage = query.Page;
+        int skip = itemsPerPage * (currentPage - 1);
+        string? nameSearch = query.Name;
+
+        IQueryable<Person> getPeopleQuery = GetPeopleAssignedToProjectQuery(projectId);
+
+        if (!String.IsNullOrEmpty(nameSearch))
+        {
+            getPeopleQuery = getPeopleQuery.Where(c => (c.FirstName + " " + c.LastName).Contains(nameSearch));
+        }
+
+        int projectCount = getPeopleQuery.Count();
+
+        getPeopleQuery = getPeopleQuery.OrderBy(person => person.Id).Skip(skip).Take(itemsPerPage);
+
+        ICollection<PersonListItemInfo> results = await getPeopleQuery
+            .Select(p => new PersonListItemInfo { Id = p.Id, Name = p.FullName })
             .ToListAsync();
-        return people;
+
+        int totalPageCount = (int)Math.Ceiling((double)projectCount / itemsPerPage);
+        int pageButtonsShown = 10;
+        int firstPageNumberDisplayed = Math.Max(1, currentPage - (int)((double)pageButtonsShown / 2));
+        int lastPageNumberDisplayed = Math.Min(currentPage + (int)((double)pageButtonsShown / 2), totalPageCount);
+
+        return new PersonSearchCollection
+        {
+            NameSearch = nameSearch,
+            CurrentPage = currentPage,
+            ItemsPerPage = itemsPerPage,
+            TotalCount = projectCount,
+            Collection = results,
+            TotalPageCount = totalPageCount,
+            FirstPageNumberDisplayed = firstPageNumberDisplayed,
+            LastPageNumberDisplayed = lastPageNumberDisplayed
+        };
     }
 
     public async Task<CommandResult> AssignPerson(ProjectPersonPairRequest pair)

@@ -13,13 +13,13 @@ public class PersonSearchCollection
 
     public int PageButtonsShown { get; set; } = 10;
 
-    /* calculated properties */
-
     public int TotalPageCount { get; set; }
 
     public int FirstPageNumberDisplayed { get; set; }
 
     public int LastPageNumberDisplayed { get; set; }
+
+    public int[] ItemsPerPageSelection = new int[] { 1, 2, 5, 10, 25, 50 };
 
     // query strings
     public string? NameSearch { get; set; }

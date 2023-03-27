@@ -17,7 +17,7 @@ public class ProjectService
 
     }
 
-    public async Task<ProjectSearchCollection> SearchProject(ProjectSearchRequest query)
+    public async Task<ProjectSearchCollection<ProjectListItemInfo>> SearchProject(ProjectSearchRequest query)
     {
 
         IQueryable<Project> getProjectsQuery = _dbContext.Projects;
@@ -58,7 +58,7 @@ public class ProjectService
         int firstPageNumberDisplayed = Math.Max(1, currentPage - (int)((double)pageButtonsShown / 2));
         int lastPageNumberDisplayed = Math.Min(currentPage + (int)((double)pageButtonsShown / 2), totalPageCount);
 
-        return new ProjectSearchCollection
+        return new ProjectSearchCollection<ProjectListItemInfo>
         {
             NameSearch = nameSearch,
             CurrentPage = currentPage,

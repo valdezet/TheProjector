@@ -26,7 +26,7 @@ public class ProjectsController : Controller
 
     public async Task<IActionResult> Index(ProjectSearchRequest query)
     {
-        ProjectSearchCollection viewModel = await _service.SearchProject(query);
+        ProjectSearchCollection<ProjectListItemInfo> viewModel = await _service.SearchProject(query);
         if (viewModel.CurrentPage > viewModel.TotalPageCount && viewModel.TotalPageCount > 0)
         {
             query.Page = 1;
@@ -35,13 +35,13 @@ public class ProjectsController : Controller
         return View(viewModel);
     }
 
-    public async Task<IActionResult> View(long id)
+    public async Task<IActionResult> View([FromRoute] long id, [FromQuery] PersonSearchRequest personSearch)
     {
         try
         {
             ProjectBasicInfo projectInfo = await _service.GetProjectBasicInfo(id);
             ICollection<PersonListItemInfo> assignablePeople = await _assignmentService.GetAssignablePeople(id);
-            ICollection<PersonListItemInfo> assignedPeople = await _assignmentService.GetAssignedPeople(id);
+            PersonSearchCollection assignedPeople = await _assignmentService.GetAssignedPeople(id, personSearch);
 
             ProjectViewViewModel viewModel = new ProjectViewViewModel
             {

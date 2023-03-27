@@ -8,8 +8,6 @@ ViewData["Title"] = "People";
         query[key] = newValue.ToString();
         return Context.Request.Path + QueryString.Create(query).ToUriComponent();
     }
-
-    int[] itemsPerPageSelection = new int[] { 1, 2, 5, 10, 25, 50 };
 }
 
 <div>
@@ -49,7 +47,7 @@ ViewData["Title"] = "People";
 
                     </a>
                     <ul class="dropdown-menu">
-                        @foreach (int item in itemsPerPageSelection)
+                        @foreach (int item in Model.ItemsPerPageSelection)
                         {
                             <li><a class="dropdown-item" href='@getURLWithNewQueryString("ItemsPerPage", @item)'>@item</a></li>
                         }
@@ -81,7 +79,7 @@ ViewData["Title"] = "People";
     else
     {
         <p class="py-2 px-1">
-            No projects available
+            No person available
         </p>
     }
 

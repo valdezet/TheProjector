@@ -1,7 +1,12 @@
 @{
-    @model TheProjector.Data.DTO.ProjectSearchCollection;
+    @model TheProjector.Data.DTO.ProjectSearchCollection<TheProjector.Data.DTO.ProjectListItemInfo>;
 ViewData["Title"] = "Projects";
 
+
+
+}
+
+@functions {
     string getURLWithNewQueryString(string key, object? newValue)
     {
         var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(Context.Request.QueryString.Value);
@@ -9,10 +14,6 @@ ViewData["Title"] = "Projects";
         return Context.Request.Path + QueryString.Create(query).ToUriComponent();
     }
 
-    int[] itemsPerPageSelection = new int[] { 1, 2, 5, 10, 25, 50 };
-}
-
-@functions {
     string ArchiveActiveMatchClassName(string classes, bool matchIfArchived)
     {
         return classes + (matchIfArchived == Model.Archived ? " active" : "");
@@ -79,11 +80,10 @@ ViewData["Title"] = "Projects";
 
                     </a>
                     <ul class="dropdown-menu">
-                        @foreach (int item in itemsPerPageSelection)
+                        @foreach (int item in Model.ItemsPerPageSelection)
                         {
                             <li><a class="dropdown-item" href='@getURLWithNewQueryString("ItemsPerPage", @item)'>@item</a></li>
                         }
-
                     </ul>
                 </div>
             </div>

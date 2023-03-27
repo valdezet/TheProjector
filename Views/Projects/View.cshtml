@@ -3,6 +3,15 @@
 ViewData["Title"] = @Model.BasicInfo.Name;
 }
 
+@functions {
+    string getURLWithNewQueryString(string key, object? newValue)
+    {
+        var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(Context.Request.QueryString.Value);
+        query[key] = newValue.ToString();
+        return Context.Request.Path + QueryString.Create(query).ToUriComponent();
+    }
+}
+
 <div>
     <div class="d-flex justify-content-between">
         <div class="mb-3">
@@ -49,7 +58,7 @@ ViewData["Title"] = @Model.BasicInfo.Name;
     }
     else
     {
-        <div class="col-mb-2">
+        <div class="mb-3">
             <h4>Assign People</h4>
             <form id="assign-person" asp-action="AssignPerson" class="row">
                 <div class="col-sm-10 col-md-11">
@@ -75,47 +84,108 @@ ViewData["Title"] = @Model.BasicInfo.Name;
     }
     <div class="col-mb-3">
         <h4>Assigned People</h4>
-        <table class="table table-sm" id="assigned-people-table">
-            <colgroup>
-                @if (Model.BasicInfo.IsArchived)
-                {
-                    <col class="col-12">
-                }
-                else
-                {
-                    <col class="col-11">
-                    <col class="col-1">
-                }
-            </colgroup>
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    @if (!Model.BasicInfo.IsArchived)
+        <div class="mb-3">
+            <form action="" method="GET">
+                <div class="d-flex gap-1">
+                    <input type="text" name="Name" class="form-control " />
+                    <button type="submit"
+                        class="btn btn-primary material-symbols-outlined d-block flex-shrink-1">search</button>
+                </div>
+
+            </form>
+            @if (!String.IsNullOrEmpty(Model.AssignedPeople.NameSearch))
+            {
+                <p>Searching for: @Model.AssignedPeople.NameSearch <a asp-action="View">Clear</a></p>
+            }
+
+        </div>
+        <div id="assigned-people-view">
+            <div class="d-flex justify-content-between align-items-end">
+                <p>Showing @Model.AssignedPeople.Collection.Count items of @Model.AssignedPeople.TotalCount</p>
+                <div class="d-flex gap-1 align-items-baseline">
+                    <p>Items per page</p>
+                    <div class="dropdown">
+                        <a class="btn btn-light btn-sm dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                            @Model.AssignedPeople.ItemsPerPage
+
+                        </a>
+                        <ul class="dropdown-menu">
+                            @foreach (int item in Model.AssignedPeople.ItemsPerPageSelection)
+                            {
+                                <li><a class="dropdown-item"
+                                        href='@getURLWithNewQueryString("ItemsPerPage", @item)'>@item</a>
+                                </li>
+                            }
+
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <table class="table table-sm" id="assigned-people-table">
+                <colgroup>
+                    @if (Model.BasicInfo.IsArchived)
                     {
-                        <th>Actions</th>
+                        <col class="col-12">
                     }
-                </tr>
-            </thead>
-            <tbody id="assigned-people">
-                @foreach (var person in Model.AssignedPeople)
-                {
+                    else
+                    {
+                        <col class="col-11">
+                        <col class="col-1">
+                    }
+                </colgroup>
+                <thead>
                     <tr>
-                        <td data-purpose="person-name-column">@person.Name</td>
+                        <th>Name</th>
                         @if (!Model.BasicInfo.IsArchived)
                         {
-                            <td>
-                                <form asp-action="UnassignPerson" data-purpose="unassign-person">
-                                    <input type="hidden" name="PersonId" value="@person.Id" />
-                                    <input type="submit" class="btn btn-danger" value="Unassign" />
-                                </form>
-                            </td>
+                            <th>Actions</th>
                         }
                     </tr>
+                </thead>
+                <tbody id="assigned-people">
+                    @foreach (var person in Model.AssignedPeople.Collection)
+                    {
+                        <tr>
+                            <td data-purpose="person-name-column">@person.Name</td>
+                            @if (!Model.BasicInfo.IsArchived)
+                            {
+                                <td>
+                                    <form asp-action="UnassignPerson" data-purpose="unassign-person">
+                                        <input type="hidden" name="PersonId" value="@person.Id" />
+                                        <input type="submit" class="btn btn-danger" value="Unassign" />
+                                    </form>
+                                </td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <div class="btn-group gap-1 border">
+                <a class="btn btn-secondary" href='@getURLWithNewQueryString("Page", "1")'>
+                    First
+                </a>
+                @* page numbers in between *@
+                @for (int i = Model.AssignedPeople.FirstPageNumberDisplayed; i <=
+                Model.AssignedPeople.LastPageNumberDisplayed; i++)
+                {
+                    string classes = "btn btn-secondary";
+                    string urlAction = getURLWithNewQueryString("Page", $"{i}");
+                    var routeData = ViewContext.RouteData.Values;
+                    if (Model.AssignedPeople.CurrentPage == i) classes += " active";
+                    <a class="@classes" href="@urlAction">
+                        @i
+                    </a>
                 }
-            </tbody>
-        </table>
+                <a class="btn btn-secondary"
+                    href='@getURLWithNewQueryString("Page", Model.AssignedPeople.TotalPageCount)'>
+                    Last (@Model.AssignedPeople.TotalPageCount)
+                </a>
+            </div>
+        </div>
+
         <p id="no-people-assigned-view" class="d-none alert alert-info">
-            No person is assigned on this project.
+            No person found.
         </p>
     </div>
 </div>
@@ -142,7 +212,7 @@ ViewData["Title"] = @Model.BasicInfo.Name;
         var unassignPersonAction = '@Url.Action("UnassignPerson")';
         var antiForgeryTokenElement = '@Html.AntiForgeryToken()';
 
-        var $assignedPeopleTable = $("table#assigned-people-table");
+        var $assignedPeopleView = $("#assigned-people-view");
         var $noneAssignedElement = $("#no-people-assigned-view");
         var $assignedPeople = $("tbody#assigned-people");
         var $assignPersonForm = $("form#assign-person");
@@ -184,10 +254,10 @@ ViewData["Title"] = @Model.BasicInfo.Name;
         function determineAssignedPeopleView() {
             if ($assignedPeople.children().length > 0) {
                 $noneAssignedElement.addClass("d-none");
-                $assignedPeopleTable.removeClass("d-none");
+                $assignedPeopleView.removeClass("d-none");
             } else {
                 $noneAssignedElement.removeClass("d-none");
-                $assignedPeopleTable.addClass("d-none");
+                $assignedPeopleView.addClass("d-none");
             }
         }
 
