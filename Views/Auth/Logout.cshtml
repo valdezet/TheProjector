@@ -1,0 +1,36 @@
+@{
+    Layout = null;
+}
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Log out - TheProjector</title>
+        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+        <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+        <link rel="stylesheet" href="~/TheProjector.styles.css" asp-append-version="true" />
+    </head>
+
+    <body>
+        <main class="container-fluid">
+            <div class=" py-2 px-2">
+                <h1>Log out</h1>
+                <p>
+                    You have successfully loged out. You will be redirected to <a asp-action="Login">Log in</a> shortly.
+                </p>
+            </div>
+        </main>
+    </body>
+
+    <script>
+        let loginLink = '@Url.Action("Login", "Auth")';
+        (() => {
+            setTimeout(() => { window.location.href = loginLink }, 1500);
+        })();
+    </script>
+
+</html>

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TheProjector.Data.DTO;
 using TheProjector.Data.Form;
@@ -8,6 +9,7 @@ using TheProjector.Utilities;
 
 namespace TheProjector.Controllers;
 
+[Authorize(Policy = "Admin")]
 public class ProjectsController : Controller
 {
 

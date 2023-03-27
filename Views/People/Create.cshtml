@@ -1,5 +1,5 @@
 @{
-    @model TheProjector.Data.DTO.PersonBasicInfo;
+    @model TheProjector.Data.Form.CreatePersonForm;
 ViewData["Title"] = "New Person";
 
 }
@@ -7,6 +7,9 @@ ViewData["Title"] = "New Person";
 <div>
 
     <h3>New Person</h3>
+    <div asp-validation-summary="ModelOnly" class="text-danger">
+
+    </div>
 
     <form method="POST">
         <div class="mb-3">
@@ -24,6 +27,28 @@ ViewData["Title"] = "New Person";
                 <span asp-validation-for="LastName" class="text text-danger"></span>
             </p>
         </div>
+
+        <hr />
+
+        <h4>Login Details</h4>
+        <p>Please advise the user to change their password as soon as possible.</p>
+
+        <div class="mb-3">
+            <label asp-for="Email"></label>
+            <input asp-for="Email" class="form-control" placeholder=" " />
+            <p class="p-0 m-0">
+                <span asp-validation-for="Email" class="text text-danger"></span>
+            </p>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Password"></label>
+            <input asp-for="Password" class="form-control" type="password" placeholder=" " />
+            <p class="p-0 m-0">
+                <span asp-validation-for="Password" class="text text-danger"></span>
+            </p>
+        </div>
+
 
         <input type="submit" class="btn btn-primary" value="Create">
 

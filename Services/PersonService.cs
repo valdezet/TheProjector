@@ -3,8 +3,9 @@ using TheProjector.Data.DTO;
 using TheProjector.Data.Request;
 using TheProjector.Data.Persistence;
 using Microsoft.EntityFrameworkCore;
+using TheProjector.Data.Form;
 
-namespace TheProjector.Utilities;
+namespace TheProjector.Services;
 
 
 public class PersonService
@@ -12,10 +13,16 @@ public class PersonService
 
     private TheProjectorDbContext _dbContext;
 
-    public PersonService(TheProjectorDbContext dbContext)
+    private PasswordService _passwordService;
+
+    public PersonService(
+        TheProjectorDbContext dbContext,
+        PasswordService passwordService
+        )
     {
         // avoiding manual resolution of Db Context for now.
         _dbContext = dbContext;
+        _passwordService = passwordService;
 
     }
 
@@ -64,22 +71,37 @@ public class PersonService
         };
     }
 
-    public async Task<CommandResult> CreatePerson(PersonBasicInfo form)
+    public async Task<CommandResult> CreatePerson(CreatePersonForm form)
     {
-        try
+        using (var transaction = _dbContext.Database.BeginTransaction())
         {
-            Person newPerson = new Person
+
+            try
             {
-                FirstName = form.FirstName,
-                LastName = form.LastName
-            };
-            _dbContext.People.Add(newPerson);
-            await _dbContext.SaveChangesAsync();
-            return CommandResult.Success();
-        }
-        catch (Exception)
-        {
-            return CommandResult.Fail("There was an error in inserting to database.");
+                User user = new User()
+                {
+                    Email = form.Email,
+                    EmailNormalized = form.Email.ToUpper(),
+                    PasswordHash = Convert.ToBase64String(_passwordService.MakeHashedPassword(form.Password))
+                };
+                _dbContext.Users.Add(user);
+                await _dbContext.SaveChangesAsync();
+                Person newPerson = new Person()
+                {
+                    FirstName = form.FirstName,
+                    LastName = form.LastName,
+                    UserId = user.Id
+                };
+                _dbContext.People.Add(newPerson);
+                await _dbContext.SaveChangesAsync();
+                await transaction.CommitAsync();
+                return CommandResult.Success();
+            }
+            catch (Exception ex) when (ex is OperationCanceledException || ex is DbUpdateException)
+            {
+                await transaction.RollbackAsync();
+                return CommandResult.Fail("There was an error in inserting to database.");
+            }
         }
     }
 

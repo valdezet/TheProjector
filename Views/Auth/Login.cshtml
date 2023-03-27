@@ -1,0 +1,43 @@
+@{
+    Layout = null;
+    @model TheProjector.Data.Form.LoginForm;
+
+}
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Log in - TheProjector</title>
+        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+        <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+        <link rel="stylesheet" href="~/TheProjector.styles.css" asp-append-version="true" />
+    </head>
+
+    <body>
+        <main class="container d-flex justify-content-center align-items-center min-vh-100">
+            <div class="border py-5 px-5">
+                <h3>Log in</h3>
+                <div asp-validation-summary="ModelOnly" class="mb-2 text-danger list-style-none"></div>
+                <form method="POST">
+                    <div class="form-floating mb-3">
+                        <input asp-for="Email" placeholder=" " class="form-control" />
+                        <label asp-for="Email"></label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input asp-for="Password" type="password" class="form-control" placeholder=" " />
+                        <label asp-for="Password"></label>
+                    </div>
+                    <input type="submit" value="Log in" class="btn btn-primary">
+                </form>
+            </div>
+        </main>
+        <script src="~/lib/jquery/dist/jquery.min.js"></script>
+        <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="~/js/site.js" asp-append-version="true"></script>
+    </body>
+
+</html>

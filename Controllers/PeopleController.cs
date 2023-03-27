@@ -3,10 +3,12 @@ using TheProjector.Services;
 using TheProjector.Data.DTO;
 using TheProjector.Data.Request;
 using TheProjector.Data.ViewModels;
+using Microsoft.AspNetCore.Authorization;
+using TheProjector.Data.Form;
 
 namespace TheProjector.Controllers;
 
-
+[Authorize(Policy = "Admin")]
 public class PeopleController : Controller
 {
 
@@ -62,13 +64,18 @@ public class PeopleController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(PersonBasicInfo form)
+    public async Task<IActionResult> Create(CreatePersonForm form)
     {
         if (!ModelState.IsValid)
         {
             return View(form);
         }
         CommandResult insertResult = await _service.CreatePerson(form);
+        if (!insertResult.IsSuccessful)
+        {
+            ModelState.AddModelError(String.Empty, insertResult.ErrorMessage!);
+            return View(form);
+        }
         return RedirectToAction("Index");
     }
 
