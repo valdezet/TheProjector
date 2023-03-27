@@ -15,11 +15,11 @@ public class PersonSearchCollection
 
     /* calculated properties */
 
-    public int TotalPageCount => (int)Math.Ceiling((double)TotalCount / ItemsPerPage);
+    public int TotalPageCount { get; set; }
 
-    public int FirstPageNumberDisplayed => Math.Max(1, CurrentPage - (int)((double)PageButtonsShown / 2));
+    public int FirstPageNumberDisplayed { get; set; }
 
-    public int LastPageNumberDisplayed => Math.Min(CurrentPage + (int)((double)PageButtonsShown / 2), TotalPageCount);
+    public int LastPageNumberDisplayed { get; set; }
 
     // query strings
     public string? NameSearch { get; set; }

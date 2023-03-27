@@ -48,13 +48,21 @@ public class PersonService
             .Select(p => new PersonListItemInfo { Id = p.Id, Name = p.FullName })
             .ToListAsync();
 
+        int totalPageCount = (int)Math.Ceiling((double)projectCount / itemsPerPage);
+        int pageButtonsShown = 10;
+        int firstPageNumberDisplayed = Math.Max(1, currentPage - (int)((double)pageButtonsShown / 2));
+        int lastPageNumberDisplayed = Math.Min(currentPage + (int)((double)pageButtonsShown / 2), totalPageCount);
+
         return new PersonSearchCollection
         {
             NameSearch = nameSearch,
             CurrentPage = currentPage,
             ItemsPerPage = itemsPerPage,
             TotalCount = projectCount,
-            Collection = results
+            Collection = results,
+            TotalPageCount = totalPageCount,
+            FirstPageNumberDisplayed = firstPageNumberDisplayed,
+            LastPageNumberDisplayed = lastPageNumberDisplayed
         };
     }
 

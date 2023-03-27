@@ -55,6 +55,8 @@ public class ProjectService
 
         int totalPageCount = (int)Math.Ceiling((double)projectCount / itemsPerPage);
         int pageButtonsShown = 10;
+        int firstPageNumberDisplayed = Math.Max(1, currentPage - (int)((double)pageButtonsShown / 2));
+        int lastPageNumberDisplayed = Math.Min(currentPage + (int)((double)pageButtonsShown / 2), totalPageCount);
 
         return new ProjectSearchCollection
         {
@@ -65,8 +67,8 @@ public class ProjectService
             Collection = results,
             Archived = query.Archived,
             TotalPageCount = totalPageCount,
-            FirstPageNumberDisplayed = Math.Max(1, currentPage - (int)((double)pageButtonsShown / 2)),
-            LastPageNumberDisplayed = Math.Min(currentPage + (int)((double)pageButtonsShown / 2), totalPageCount),
+            FirstPageNumberDisplayed = firstPageNumberDisplayed,
+            LastPageNumberDisplayed = lastPageNumberDisplayed
         };
     }
 
