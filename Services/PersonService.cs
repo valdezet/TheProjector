@@ -128,6 +128,10 @@ public class PersonService
             var databaseValues = entry.GetDatabaseValues();
 
 
+            if (databaseValues == null)
+            {
+                return CommandResult.Fail("The person's records has been deleted by another user.");
+            }
 
             foreach (var property in currentValues.Properties)
             {
@@ -135,10 +139,6 @@ public class PersonService
                 var currentValue = currentValues[property];
                 var databaseValue = databaseValues[property];
 
-                if (databaseValue == null)
-                {
-                    return CommandResult.Fail("The person's records has been deleted by another user.");
-                }
 
                 if (currentValue == null)
                 {

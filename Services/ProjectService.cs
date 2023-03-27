@@ -170,16 +170,16 @@ public class ProjectService
             var currentValues = entry.CurrentValues;
             var databaseValues = entry.GetDatabaseValues();
 
+            if (databaseValues == null)
+            {
+                return CommandResult.Fail("The project has been deleted by another user.");
+            }
             foreach (var property in currentValues.Properties)
             {
                 var fieldName = property.Name;
                 var currentValue = currentValues[property];
                 var databaseValue = databaseValues[property];
 
-                if (databaseValue == null)
-                {
-                    return CommandResult.Fail("The project has been deleted by another user.");
-                }
 
                 if (currentValue == null)
                 {
