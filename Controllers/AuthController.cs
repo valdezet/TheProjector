@@ -25,7 +25,7 @@ public class AuthController : Controller
         return View();
     }
 
-    public async Task<IActionResult> Login(LoginForm form)
+    public async Task<IActionResult> Login(LoginForm form, [FromQuery] string? returnUrl)
     {
         CommandResult verifyPasswordResults = await _service.AuthenticateUser(form);
         if (!verifyPasswordResults.IsSuccessful)
@@ -48,7 +48,14 @@ public class AuthController : Controller
             CookieAuthenticationDefaults.AuthenticationScheme,
             new ClaimsPrincipal(claimsIdentity)
         );
-        return RedirectToAction("Index", "Home");
+        if (returnUrl == null)
+        {
+            return RedirectToAction("Index", "Home");
+        }
+        else
+        {
+            return Redirect(returnUrl);
+        }
     }
 
     public async Task<IActionResult> Logout()
